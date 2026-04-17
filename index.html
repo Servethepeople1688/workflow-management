@@ -1,648 +1,316 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>天猫运营工作流程管理系统</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Noto Sans SC', sans-serif; }
-    .card-enter-active, .card-leave-active { transition: all 0.3s ease; }
-    .card-enter-from, .card-leave-to { opacity: 0; transform: translateY(20px); }
-    .upload-zone { transition: all 0.2s ease; }
-    .upload-zone:hover { border-color: #6366f1; background: #eef2ff; }
-    .progress-stripe {
-      background-image: linear-gradient(
-        45deg,
-        rgba(255,255,255,0.1) 25%,
-        transparent 25%,
-        transparent 50%,
-        rgba(255,255,255,0.1) 50%,
-        rgba(255,255,255,0.1) 75%,
-        transparent 75%,
-        transparent
-      );
-      background-size: 30px 30px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天猫运营工作流程管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #1e1b4b 100%); min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .card:hover { border-color: rgba(255,255,255,0.4); }
+        .progress-bar { background: linear-gradient(90deg, #34d399, #10b981, #059669); }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
-  <div id="app">
-    <!-- 顶部导航 -->
-    <header class="bg-white/10 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 py-4">
-        <div class="flex items-center justify-between flex-wrap gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-              </svg>
-            </div>
-            <div>
-              <h1 class="text-xl font-bold text-white">天猫运营工作流程管理系统</h1>
-              <p class="text-sm text-purple-300">Tmall Operation Workflow</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-4">
-            <button @click="resetWorkflow" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition text-sm">
-              重置流程
-            </button>
-            <button @click="exportData" class="px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-lg transition text-sm font-medium">
-              导出数据
-            </button>
-          </div>
+<body class="text-white p-4">
+    <div class="max-w-6xl mx-auto">
+        <!-- 标题 -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold mb-2">天猫运营工作流程管理系统</h1>
+            <p class="text-purple-300">Tmall Operation Workflow</p>
         </div>
         
-        <!-- 整体进度条 -->
-        <div class="mt-4">
-          <div class="flex justify-between text-sm text-purple-200 mb-2">
-            <span>整体进度</span>
-            <span>{{ completedCount }} / {{ totalCount }} ({{ progressPercent }}%)</span>
-          </div>
-          <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-            <div 
-              class="h-full bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 progress-stripe transition-all duration-500"
-              :style="{ width: progressPercent + '%' }"
-            ></div>
-          </div>
+        <!-- 进度条 -->
+        <div class="card rounded-xl p-4 mb-6">
+            <div class="flex justify-between mb-2">
+                <span>整体进度</span>
+                <span id="progressText">0 / 9 (0%)</span>
+            </div>
+            <div class="h-3 bg-white/10 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full progress-bar transition-all duration-500" style="width: 0%"></div>
+            </div>
         </div>
-      </div>
-    </header>
-
-    <!-- 依赖说明 -->
-    <div class="max-w-7xl mx-auto px-4 py-6">
-      <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-amber-200">
-        <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <div>
-            <p class="font-medium">依赖规则说明</p>
-            <p class="text-sm mt-1 opacity-80">「评价」环节需在「销量」完成3天后才能开始执行，其他环节可并行处理。</p>
-          </div>
+        
+        <!-- 依赖说明 -->
+        <div class="bg-amber-500/20 border border-amber-500/40 rounded-xl p-4 mb-6">
+            <p class="font-medium">⚠️ 依赖规则说明</p>
+            <p class="text-sm text-amber-200 mt-1">「评价」环节需在「销量」完成3天后才能开始执行，其他环节可并行处理。</p>
         </div>
-      </div>
+        
+        <!-- 任务列表 -->
+        <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 任务卡片将通过JS动态生成 -->
+        </div>
     </div>
-
-    <!-- 任务卡片列表 -->
-    <main class="max-w-7xl mx-auto px-4 pb-12">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <transition-group name="card">
-          <div 
-            v-for="task in tasks" 
-            :key="task.id"
-            class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden hover:border-white/40 transition-all duration-300"
-            :class="{ 
-              'ring-2 ring-green-500/50': task.status === 'completed',
-              'ring-2 ring-amber-500/50': task.status === 'in_progress',
-              'opacity-60': !isTaskAvailable(task)
-            }"
-          >
-            <!-- 卡片头部 -->
-            <div class="p-5 border-b border-white/10">
-              <div class="flex items-start justify-between">
-                <div class="flex items-center gap-3">
-                  <div 
-                    class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
-                    :class="{
-                      'bg-green-500': task.status === 'completed',
-                      'bg-amber-500 animate-pulse': task.status === 'in_progress',
-                      'bg-slate-600': task.status === 'pending',
-                      'bg-red-500': task.status === 'blocked'
-                    }"
-                  >
-                    <span v-if="task.status === 'completed'">✓</span>
-                    <span v-else-if="task.status === 'in_progress'">▶</span>
-                    <span v-else-if="task.status === 'blocked'">⛔</span>
-                    <span v-else>{{ task.order }}</span>
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-bold text-white">{{ task.name }}</h3>
-                    <p class="text-sm text-purple-300">{{ task.responsible }}</p>
-                  </div>
-                </div>
-                <span 
-                  class="px-2.5 py-1 rounded-full text-xs font-medium"
-                  :class="{
-                    'bg-green-500/20 text-green-300': task.status === 'completed',
-                    'bg-amber-500/20 text-amber-300': task.status === 'in_progress',
-                    'bg-slate-500/20 text-slate-300': task.status === 'pending',
-                    'bg-red-500/20 text-red-300': task.status === 'blocked'
-                  }"
-                >
-                  {{ statusText(task.status) }}
-                </span>
-              </div>
-            </div>
-
-            <!-- 卡片内容 -->
-            <div class="p-5">
-              <!-- 依赖信息 -->
-              <div v-if="task.dependencies.length > 0" class="mb-4">
-                <p class="text-xs text-slate-400 mb-1">依赖任务：</p>
-                <div class="flex flex-wrap gap-1">
-                  <span 
-                    v-for="dep in task.dependencies" 
-                    :key="dep.id"
-                    class="px-2 py-0.5 rounded text-xs"
-                    :class="getDependencyClass(dep)"
-                  >
-                    {{ dep.name }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- 任务说明 -->
-              <div v-if="task.description" class="text-sm text-slate-300 mb-4">
-                {{ task.description }}
-              </div>
-
-              <!-- 截图预览 -->
-              <div v-if="task.screenshot" class="mb-4">
-                <p class="text-xs text-slate-400 mb-2">完成截图：</p>
-                <img 
-                  :src="task.screenshot" 
-                  class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition"
-                  @click="previewImage(task.screenshot)"
-                >
-              </div>
-
-              <!-- 完成时间 -->
-              <div v-if="task.completed_at" class="text-xs text-green-400 mb-4">
-                完成于：{{ formatDate(task.completed_at) }}
-              </div>
-
-              <!-- 操作按钮 -->
-              <div class="flex gap-2">
-                <button 
-                  v-if="task.status === 'pending' && isTaskAvailable(task)"
-                  @click="startTask(task)"
-                  class="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition text-sm font-medium"
-                >
-                  开始执行
-                </button>
-                <button 
-                  v-if="task.status === 'in_progress' || (task.status === 'pending' && !isTaskAvailable(task))"
-                  @click="openUploadDialog(task)"
-                  class="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg transition text-sm font-medium"
-                  :disabled="task.status === 'pending' && !isTaskAvailable(task)"
-                  :class="{ 'opacity-50 cursor-not-allowed': task.status === 'pending' && !isTaskAvailable(task) }"
-                >
-                  上传截图完成
-                </button>
-                <button 
-                  v-if="task.status === 'completed'"
-                  @click="undoTask(task)"
-                  class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition text-sm"
-                >
-                  撤销
-                </button>
-              </div>
-
-              <!-- 邮件状态 -->
-              <div v-if="task.email_sent" class="mt-3 text-xs text-green-400 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                审核邮件已发送
-              </div>
-            </div>
-          </div>
-        </transition-group>
-      </div>
-    </main>
-
+    
     <!-- 上传对话框 -->
-    <div v-if="showUploadDialog" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-slate-800 rounded-2xl w-full max-w-md border border-white/20">
-        <div class="p-6 border-b border-white/10">
-          <h3 class="text-xl font-bold text-white">上传完成截图</h3>
-          <p class="text-slate-400 mt-1">{{ currentTask?.name }}</p>
-        </div>
-        <div class="p-6">
-          <div 
-            class="upload-zone border-2 border-dashed border-slate-500 rounded-xl p-8 text-center cursor-pointer"
-            @click="$refs.fileInput.click()"
-            @dragover.prevent
-            @drop.prevent="handleDrop"
-          >
-            <input 
-              type="file" 
-              ref="fileInput" 
-              @change="handleFileSelect" 
-              accept="image/*" 
-              class="hidden"
-            >
-            <div v-if="!previewUrl">
-              <svg class="w-12 h-12 mx-auto text-slate-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <p class="text-slate-400">点击或拖拽上传截图</p>
-              <p class="text-xs text-slate-500 mt-2">支持 PNG、JPG、GIF 格式</p>
+    <div id="uploadModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 rounded-2xl w-full max-w-md p-6 m-4">
+            <h3 class="text-xl font-bold mb-4">上传完成截图</h3>
+            <p class="text-slate-400 mb-4" id="uploadTaskName"></p>
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            <div id="dropZone" class="border-2 border-dashed border-slate-500 rounded-xl p-8 text-center cursor-pointer hover:border-purple-500 mb-4">
+                <p class="text-slate-400">点击或拖拽上传截图</p>
+                <img id="previewImg" class="max-h-48 mx-auto rounded-lg hidden">
             </div>
-            <div v-else>
-              <img :src="previewUrl" class="max-h-48 mx-auto rounded-lg">
-              <button @click.stop="clearPreview" class="mt-3 text-sm text-red-400 hover:text-red-300">
-                移除图片
-              </button>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeUploadModal()" class="px-4 py-2 bg-slate-600 rounded-lg">取消</button>
+                <button onclick="confirmUpload()" class="px-4 py-2 bg-green-500 rounded-lg" id="confirmBtn" disabled>确认完成</button>
             </div>
-          </div>
-
-          <!-- 备注 -->
-          <div class="mt-4">
-            <label class="block text-sm text-slate-400 mb-2">备注（可选）</label>
-            <textarea 
-              v-model="uploadRemark"
-              class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none resize-none"
-              rows="2"
-              placeholder="添加完成说明..."
-            ></textarea>
-          </div>
         </div>
-        <div class="p-6 bg-white/5 flex justify-end gap-3">
-          <button @click="closeUploadDialog" class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition">
-            取消
-          </button>
-          <button 
-            @click="confirmComplete" 
-            class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg transition font-medium"
-            :disabled="!previewUrl"
-            :class="{ 'opacity-50 cursor-not-allowed': !previewUrl }"
-          >
-            确认完成
-          </button>
-        </div>
-      </div>
     </div>
+    
+    <!-- Toast通知 -->
+    <div id="toast" class="fixed top-4 right-4 px-6 py-3 bg-green-500 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50"></div>
 
-    <!-- 图片预览 -->
-    <div v-if="previewImageUrl" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4" @click="previewImageUrl = null">
-      <img :src="previewImageUrl" class="max-w-full max-h-full object-contain rounded-lg">
-      <button class="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Toast 通知 -->
-    <div class="fixed bottom-4 right-4 z-50">
-      <transition name="slide">
-        <div v-if="toast.show" class="px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3" :class="toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'">
-          <svg v-if="toast.type === 'success'" class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          <span class="text-white font-medium">{{ toast.message }}</span>
-        </div>
-      </transition>
-    </div>
-  </div>
-
-  <script>
-    const { createApp, ref, computed, onMounted, watch } = Vue;
-
-    createApp({
-      setup() {
-        // 数据
-        const tasks = ref([]);
-        const showUploadDialog = ref(false);
-        const currentTask = ref(null);
-        const previewUrl = ref(null);
-        const selectedFile = ref(null);
-        const uploadRemark = ref('');
-        const previewImageUrl = ref(null);
-        const toast = ref({ show: false, message: '', type: 'success' });
-
-        // 任务列表数据
+    <script>
+        // 任务数据
         const defaultTasks = [
-          { id: 'main_image', name: '主图', responsible: '鑫垭', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '制作并上传主图素材', order: 1 },
-          { id: 'video', name: '视频', responsible: '王政', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '制作主图视频', order: 2 },
-          { id: 'short_video', name: '短视频', responsible: '王政', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '制作商品详情页短视频', order: 3 },
-          { id: 'new_product_material', name: '新品运营中心素材补全', responsible: '鑫垭', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '补充新品运营中心所需素材', order: 4 },
-          { id: 'buyer_show', name: '买家秀模块', responsible: '鑫垭', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '整理上传买家秀内容', order: 5 },
-          { id: 'qna', name: '问大家', responsible: '鑫垭', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '整理问大家问题与回答', order: 6 },
-          { id: 'sales', name: '销量', responsible: '灵活调整', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '销量任务（基础销量积累）', order: 7 },
-          { id: 'review', name: '评价', responsible: '鑫垭', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '整理评价内容，引导好评（需销量完成后3天）', dependencies: [{ id: 'sales', name: '销量', checkDays: 3 }], order: 8 },
-          { id: 'promotion', name: '推广', responsible: '待定', responsible_email: '386319800@qq.com', reviewer: '老司机', reviewer_email: '386319800@qq.com', status: 'pending', description: '启动付费推广', order: 9 }
+            { id: 'main_image', name: '主图', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 1 },
+            { id: 'video', name: '视频', responsible: '王政', email: '386319800@qq.com', status: 'pending', order: 2 },
+            { id: 'short_video', name: '短视频', responsible: '王政', email: '386319800@qq.com', status: 'pending', order: 3 },
+            { id: 'new_product', name: '新品运营中心素材补全', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 4 },
+            { id: 'buyer_show', name: '买家秀模块', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 5 },
+            { id: 'qna', name: '问大家', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 6 },
+            { id: 'sales', name: '销量', responsible: '灵活调整', email: '386319800@qq.com', status: 'pending', order: 7 },
+            { id: 'review', name: '评价', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', dependencies: ['sales'], order: 8 },
+            { id: 'promotion', name: '推广', responsible: '待定', email: '386319800@qq.com', status: 'pending', order: 9 }
         ];
-
-        // 计算属性
-        const totalCount = computed(() => tasks.value.length);
-        const completedCount = computed(() => tasks.value.filter(t => t.status === 'completed').length);
-        const progressPercent = computed(() => Math.round((completedCount.value / totalCount.value) * 100));
-
-        // 初始化数据
-        const initData = () => {
-          const saved = localStorage.getItem('tmall_workflow_tasks');
-          if (saved) {
-            try {
-              tasks.value = JSON.parse(saved);
-            } catch (e) {
-              tasks.value = defaultTasks.map(t => ({ ...t, screenshot: null, completed_at: null, email_sent: false }));
-            }
-          } else {
-            tasks.value = defaultTasks.map(t => ({ ...t, screenshot: null, completed_at: null, email_sent: false }));
-          }
-        };
-
-        // 保存数据
-        const saveData = () => {
-          localStorage.setItem('tmall_workflow_tasks', JSON.stringify(tasks.value));
-        };
-
-        // 检查任务是否可用
-        const isTaskAvailable = (task) => {
-          if (!task.dependencies || task.dependencies.length === 0) {
-            return true;
-          }
-          
-          for (const dep of task.dependencies) {
-            const depTask = tasks.value.find(t => t.id === dep.id);
-            if (!depTask || depTask.status !== 'completed') {
-              return false;
-            }
-            
-            // 检查日期限制
-            if (dep.checkDays) {
-              const completedDate = new Date(depTask.completed_at);
-              const now = new Date();
-              const daysDiff = Math.floor((now - completedDate) / (1000 * 60 * 60 * 24));
-              if (daysDiff < dep.checkDays) {
-                return false;
-              }
-            }
-          }
-          
-          return true;
-        };
-
-        // 获取依赖状态样式
-        const getDependencyClass = (dep) => {
-          const task = tasks.value.find(t => t.id === dep.id);
-          if (!task) return 'bg-slate-500/30 text-slate-400';
-          
-          if (task.status === 'completed') {
-            return 'bg-green-500/30 text-green-400';
-          }
-          return 'bg-amber-500/30 text-amber-400';
-        };
-
-        // 状态文本
-        const statusText = (status) => {
-          const map = {
-            pending: '待开始',
-            in_progress: '进行中',
-            completed: '已完成',
-            blocked: '被阻塞'
-          };
-          return map[status] || status;
-        };
-
-        // 格式化日期
-        const formatDate = (dateStr) => {
-          const date = new Date(dateStr);
-          return date.toLocaleString('zh-CN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-        };
-
-        // 开始任务
-        const startTask = (task) => {
-          task.status = 'in_progress';
-          saveData();
-          showToast(`${task.name} 开始执行`, 'success');
-        };
-
-        // 打开上传对话框
-        const openUploadDialog = (task) => {
-          currentTask.value = task;
-          showUploadDialog.value = true;
-          previewUrl.value = null;
-          selectedFile.value = null;
-          uploadRemark.value = '';
-        };
-
-        // 关闭上传对话框
-        const closeUploadDialog = () => {
-          showUploadDialog.value = false;
-          currentTask.value = null;
-          previewUrl.value = null;
-          selectedFile.value = null;
-        };
-
-        // 文件选择
-        const handleFileSelect = (e) => {
-          const file = e.target.files[0];
-          if (file) {
-            processFile(file);
-          }
-        };
-
-        // 文件拖放
-        const handleDrop = (e) => {
-          const file = e.dataTransfer.files[0];
-          if (file && file.type.startsWith('image/')) {
-            processFile(file);
-          }
-        };
-
-        // 处理文件
-        const processFile = (file) => {
-          selectedFile.value = file;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            previewUrl.value = e.target.result;
-          };
-          reader.readAsDataURL(file);
-        };
-
-        // 清除预览
-        const clearPreview = () => {
-          previewUrl.value = null;
-          selectedFile.value = null;
-        };
-
-        // 确认完成
-        const confirmComplete = async () => {
-          if (!currentTask.value || !previewUrl.value) return;
-          
-          currentTask.value.screenshot = previewUrl.value;
-          currentTask.value.status = 'completed';
-          currentTask.value.completed_at = new Date().toISOString();
-          currentTask.value.remark = uploadRemark.value;
-          
-          saveData();
-          
-          // 发送邮件通知
-          await sendReviewEmail(currentTask.value);
-          
-          closeUploadDialog();
-          showToast(`${currentTask.value.name} 已完成`, 'success');
-        };
-
-        // 发送审核邮件
-        const sendReviewEmail = async (task) => {
-          // 预留邮件API接口
-          // 实际项目中请替换为真实的邮件发送API
-          const emailData = {
-            to: task.reviewer_email,
-            subject: `【待审核】${task.name} - 天猫运营工作流程`,
-            body: `
-              <h2>任务完成通知</h2>
-              <p><strong>任务名称：</strong>${task.name}</p>
-              <p><strong>负责人：</strong>${task.responsible}</p>
-              <p><strong>完成时间：</strong>${formatDate(task.completed_at)}</p>
-              <p><strong>备注：</strong>${task.remark || '无'}</p>
-              <p>请登录系统审核。</p>
-            `,
-            task_id: task.id,
-            completed_at: task.completed_at
-          };
-
-          console.log('📧 邮件数据（预留接口）:', emailData);
-          
-          // 实际发送时取消注释下面代码
-          /*
-          try {
-            const response = await fetch('YOUR_EMAIL_API_ENDPOINT', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(emailData)
-            });
-            if (response.ok) {
-              task.email_sent = true;
-              saveData();
-              showToast('审核邮件已发送', 'success');
-            }
-          } catch (error) {
-            console.error('邮件发送失败:', error);
-          }
-          */
-          
-          // 模拟发送成功
-          task.email_sent = true;
-          saveData();
-        };
-
-        // 撤销任务
-        const undoTask = (task) => {
-          task.status = 'pending';
-          task.completed_at = null;
-          saveData();
-          showToast(`${task.name} 已撤销`, 'success');
-        };
-
-        // 预览图片
-        const previewImage = (url) => {
-          previewImageUrl.value = url;
-        };
-
-        // 重置流程
-        const resetWorkflow = () => {
-          if (confirm('确定要重置所有流程吗？')) {
-            tasks.value = defaultTasks.map(t => ({ ...t, screenshot: null, completed_at: null, email_sent: false }));
-            saveData();
-            showToast('流程已重置', 'success');
-          }
-        };
-
-        // 导出数据
-        const exportData = () => {
-          const data = {
-            export_time: new Date().toISOString(),
-            summary: {
-              total: totalCount.value,
-              completed: completedCount.value,
-              progress: progressPercent.value
-            },
-            tasks: tasks.value
-          };
-          
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `天猫运营流程_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.json`;
-          a.click();
-          URL.revokeObjectURL(url);
-          showToast('数据已导出', 'success');
-        };
-
-        // 显示Toast
-        const showToast = (message, type = 'success') => {
-          toast.value = { show: true, message, type };
-          setTimeout(() => {
-            toast.value.show = false;
-          }, 3000);
-        };
-
-        // 监听任务状态变化，更新依赖任务的阻塞状态
-        watch(tasks, () => {
-          tasks.value.forEach(task => {
-            if (task.dependencies && task.dependencies.length > 0 && task.status === 'pending') {
-              const available = isTaskAvailable(task);
-              if (available && task.status === 'blocked') {
-                task.status = 'pending';
-              }
-            }
-          });
-        }, { deep: true });
-
+        
+        let tasks = [];
+        let currentTask = null;
+        let selectedFile = null;
+        
         // 初始化
-        onMounted(() => {
-          initData();
-          
-          // 初始化时检查被阻塞的任务
-          tasks.value.forEach(task => {
-            if (task.dependencies && task.dependencies.length > 0 && task.status !== 'completed') {
-              if (!isTaskAvailable(task)) {
-                task.status = 'blocked';
-              }
+        function init() {
+            const saved = localStorage.getItem('tmall_tasks');
+            if (saved) {
+                tasks = JSON.parse(saved);
+            } else {
+                tasks = defaultTasks.map(t => ({...t, screenshot: null, completed_at: null}));
             }
-          });
-          saveData();
+            renderTasks();
+            updateProgress();
+        }
+        
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('tmall_tasks', JSON.stringify(tasks));
+        }
+        
+        // 渲染任务
+        function renderTasks() {
+            const container = document.getElementById('taskList');
+            container.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const isAvailable = checkTaskAvailable(task);
+                const card = document.createElement('div');
+                card.className = 'card rounded-xl overflow-hidden ' + 
+                    (task.status === 'completed' ? 'ring-2 ring-green-500' : '') +
+                    (task.status === 'in_progress' ? 'ring-2 ring-amber-500' : '') +
+                    (!isAvailable ? 'opacity-60' : '');
+                
+                let statusBadge = '';
+                let statusText = '';
+                let statusColor = '';
+                
+                if (task.status === 'completed') {
+                    statusText = '✓ 已完成';
+                    statusColor = 'bg-green-500';
+                } else if (task.status === 'in_progress') {
+                    statusText = '▶ 进行中';
+                    statusColor = 'bg-amber-500';
+                } else if (!isAvailable) {
+                    statusText = '⛔ 等待中';
+                    statusColor = 'bg-red-500';
+                } else {
+                    statusText = '○ 待开始';
+                    statusColor = 'bg-slate-600';
+                }
+                
+                let buttonHtml = '';
+                if (task.status === 'pending' && isAvailable) {
+                    buttonHtml = `<button onclick="startTask('${task.id}')" class="w-full py-2 bg-amber-500 hover:bg-amber-600 rounded-lg font-medium">开始执行</button>`;
+                } else if (task.status === 'in_progress') {
+                    buttonHtml = `<button onclick="openUploadModal('${task.id}')" class="w-full py-2 bg-green-500 hover:bg-green-600 rounded-lg font-medium">上传截图完成</button>`;
+                } else if (task.status === 'completed') {
+                    buttonHtml = `<button onclick="undoTask('${task.id}')" class="w-full py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">撤销</button>`;
+                }
+                
+                let depHtml = '';
+                if (task.dependencies && task.dependencies.length > 0) {
+                    const dep = tasks.find(t => t.id === task.dependencies[0]);
+                    if (dep) {
+                        const depColor = dep.status === 'completed' ? 'bg-green-500/30 text-green-400' : 'bg-amber-500/30 text-amber-400';
+                        depHtml = `<div class="mb-3"><span class="text-xs text-slate-400">依赖：</span><span class="text-xs px-2 py-1 rounded ${depColor}">${dep.name}</span></div>`;
+                    }
+                }
+                
+                let screenshotHtml = '';
+                if (task.screenshot) {
+                    screenshotHtml = `<div class="mb-3"><img src="${task.screenshot}" class="w-full h-24 object-cover rounded-lg"></div>`;
+                }
+                
+                let completedHtml = '';
+                if (task.completed_at) {
+                    completedHtml = `<div class="text-xs text-green-400 mb-2">完成于：${task.completed_at}</div>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 ${statusColor} rounded-lg flex items-center justify-center font-bold">${task.order}</div>
+                            <div>
+                                <h3 class="font-bold">${task.name}</h3>
+                                <p class="text-sm text-purple-300">${task.responsible}</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded text-xs ${statusColor}">${statusText}</span>
+                    </div>
+                    <div class="p-4">
+                        ${depHtml}
+                        ${screenshotHtml}
+                        ${completedHtml}
+                        ${buttonHtml}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // 检查任务是否可用
+        function checkTaskAvailable(task) {
+            if (!task.dependencies || task.dependencies.length === 0) return true;
+            
+            for (const depId of task.dependencies) {
+                const dep = tasks.find(t => t.id === depId);
+                if (!dep || dep.status !== 'completed') return false;
+            }
+            return true;
+        }
+        
+        // 更新进度
+        function updateProgress() {
+            const completed = tasks.filter(t => t.status === 'completed').length;
+            const total = tasks.length;
+            const percent = Math.round((completed / total) * 100);
+            
+            document.getElementById('progressText').textContent = `${completed} / ${total} (${percent}%)`;
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+        
+        // 开始任务
+        function startTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'in_progress';
+                saveData();
+                renderTasks();
+                showToast('任务已开始', 'success');
+            }
+        }
+        
+        // 打开上传对话框
+        function openUploadModal(taskId) {
+            currentTask = tasks.find(t => t.id === taskId);
+            if (currentTask) {
+                document.getElementById('uploadTaskName').textContent = currentTask.name;
+                document.getElementById('uploadModal').classList.remove('hidden');
+                document.getElementById('previewImg').classList.add('hidden');
+                document.getElementById('confirmBtn').disabled = true;
+                selectedFile = null;
+            }
+        }
+        
+        // 关闭上传对话框
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+            currentTask = null;
+            selectedFile = null;
+        }
+        
+        // 文件选择
+        document.getElementById('dropZone').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
         });
-
-        return {
-          tasks,
-          showUploadDialog,
-          currentTask,
-          previewUrl,
-          uploadRemark,
-          previewImageUrl,
-          toast,
-          totalCount,
-          completedCount,
-          progressPercent,
-          isTaskAvailable,
-          getDependencyClass,
-          statusText,
-          formatDate,
-          startTask,
-          openUploadDialog,
-          closeUploadDialog,
-          handleFileSelect,
-          handleDrop,
-          clearPreview,
-          confirmComplete,
-          undoTask,
-          previewImage,
-          resetWorkflow,
-          exportData
-        };
-      }
-    }).mount('#app');
-  </script>
-
-  <style>
-    .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
-    .slide-enter-from, .slide-leave-to { opacity: 0; transform: translateX(100px); }
-  </style>
+        
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('previewImg').classList.remove('hidden');
+                    document.getElementById('confirmBtn').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 确认上传
+        function confirmUpload() {
+            if (currentTask && selectedFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentTask.screenshot = e.target.result;
+                    currentTask.status = 'completed';
+                    currentTask.completed_at = new Date().toLocaleString('zh-CN');
+                    saveData();
+                    renderTasks();
+                    updateProgress();
+                    closeUploadModal();
+                    showToast('任务完成！已发送审核邮件', 'success');
+                    
+                    // 发送邮件提醒（模拟）
+                    sendEmail(currentTask);
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        }
+        
+        // 撤销任务
+        function undoTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'pending';
+                task.screenshot = null;
+                task.completed_at = null;
+                saveData();
+                renderTasks();
+                updateProgress();
+                showToast('任务已撤销', 'warning');
+            }
+        }
+        
+        // 发送邮件
+        function sendEmail(task) {
+            console.log('发送邮件给老司机审核:', task.name, task.email);
+            // 实际邮件发送需要后端支持
+        }
+        
+        // Toast通知
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-transform duration-300 ' + 
+                (type === 'success' ? 'bg-green-500' : 'bg-amber-500');
+            toast.style.transform = 'translateX(0)';
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(150%)';
+            }, 3000);
+        }
+        
+        // 页面加载完成后初始化
+        init();
+    </script>
 </body>
 </html>
