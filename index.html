@@ -4,313 +4,823 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天猫运营工作流程管理系统</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #1e1b4b 100%); min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
-        .card:hover { border-color: rgba(255,255,255,0.4); }
-        .progress-bar { background: linear-gradient(90deg, #34d399, #10b981, #059669); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧款式列表 */
+        .style-panel {
+            width: 30%;
+            min-width: 280px;
+            max-width: 400px;
+            background: #fff;
+            border-right: 1px solid #e8ecf0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7c948 100%);
+            color: #fff;
+        }
+
+        .panel-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 36px 10px 14px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.95);
+            font-size: 14px;
+            color: #333;
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 14px;
+        }
+
+        .style-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .style-item {
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .style-item:hover {
+            background: #fff5f0;
+        }
+
+        .style-item.active {
+            background: #fff5f0;
+            border-color: #ff6b35;
+        }
+
+        .style-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .style-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .style-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .badge-progress {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .badge-completed {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #f7c948);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .style-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 右侧工作流程 */
+        .workflow-panel {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .workflow-header {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .current-style {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .current-style-en {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .overall-progress {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .overall-progress .label {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .overall-progress .bar {
+            flex: 1;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .overall-progress .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #f7c948);
+            border-radius: 4px;
+            transition: width 0.4s;
+        }
+
+        .overall-progress .percent {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff6b35;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .task-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(255,107,53,0.15);
+        }
+
+        .task-card.completed {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #fff 0%, #f8fff8 100%);
+        }
+
+        .task-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .task-index {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7c948 100%);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-card.completed .task-index {
+            background: #4caf50;
+        }
+
+        .task-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .status-completed {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .task-assignee {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .task-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            flex: 1;
+        }
+
+        .btn-complete {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: #fff;
+        }
+
+        .btn-complete:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(76,175,80,0.3);
+        }
+
+        .btn-reset {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-reset:hover {
+            background: #eee;
+        }
+
+        .completed-info {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #eee;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .completed-info .time {
+            color: #4caf50;
+            font-weight: 500;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        /* 邮件发送提示 */
+        .email-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .email-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .email-toast.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        .email-toast.error {
+            border-left: 4px solid #f44336;
+        }
+
+        /* 统计卡片 */
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            flex: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .stat-card.highlight .value {
+            color: #ff6b35;
+        }
+
+        /* 滚动条美化 */
+        .style-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .style-list::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .workflow-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .workflow-panel::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .style-panel {
+                width: 100%;
+                max-width: none;
+                height: 40vh;
+                border-right: none;
+                border-bottom: 1px solid #e8ecf0;
+            }
+            .workflow-panel {
+                height: 60vh;
+            }
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
-<body class="text-white p-4">
-    <div class="max-w-6xl mx-auto">
-        <!-- 标题 -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold mb-2">天猫运营工作流程管理系统</h1>
-            <p class="text-purple-300">Tmall Operation Workflow</p>
-        </div>
-        
-        <!-- 进度条 -->
-        <div class="card rounded-xl p-4 mb-6">
-            <div class="flex justify-between mb-2">
-                <span>整体进度</span>
-                <span id="progressText">0 / 9 (0%)</span>
+<body>
+    <div class="container">
+        <!-- 左侧款式列表 -->
+        <div class="style-panel">
+            <div class="panel-header">
+                <h2>📦 款式列表</h2>
+                <div class="search-box">
+                    <input type="text" id="styleSearch" placeholder="搜索款式...">
+                    <span class="search-icon">🔍</span>
+                </div>
             </div>
-            <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-                <div id="progressBar" class="h-full progress-bar transition-all duration-500" style="width: 0%"></div>
-            </div>
+            <div class="style-list" id="styleList"></div>
         </div>
-        
-        <!-- 依赖说明 -->
-        <div class="bg-amber-500/20 border border-amber-500/40 rounded-xl p-4 mb-6">
-            <p class="font-medium">⚠️ 依赖规则说明</p>
-            <p class="text-sm text-amber-200 mt-1">「评价」环节需在「销量」完成3天后才能开始执行，其他环节可并行处理。</p>
-        </div>
-        
-        <!-- 任务列表 -->
-        <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- 任务卡片将通过JS动态生成 -->
-        </div>
-    </div>
-    
-    <!-- 上传对话框 -->
-    <div id="uploadModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-        <div class="bg-slate-800 rounded-2xl w-full max-w-md p-6 m-4">
-            <h3 class="text-xl font-bold mb-4">上传完成截图</h3>
-            <p class="text-slate-400 mb-4" id="uploadTaskName"></p>
-            <input type="file" id="fileInput" accept="image/*" class="hidden">
-            <div id="dropZone" class="border-2 border-dashed border-slate-500 rounded-xl p-8 text-center cursor-pointer hover:border-purple-500 mb-4">
-                <p class="text-slate-400">点击或拖拽上传截图</p>
-                <img id="previewImg" class="max-h-48 mx-auto rounded-lg hidden">
-            </div>
-            <div class="flex justify-end gap-3">
-                <button onclick="closeUploadModal()" class="px-4 py-2 bg-slate-600 rounded-lg">取消</button>
-                <button onclick="confirmUpload()" class="px-4 py-2 bg-green-500 rounded-lg" id="confirmBtn" disabled>确认完成</button>
+
+        <!-- 右侧工作流程 -->
+        <div class="workflow-panel" id="workflowPanel">
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-text">请从左侧选择一个款式</div>
             </div>
         </div>
     </div>
-    
-    <!-- Toast通知 -->
-    <div id="toast" class="fixed top-4 right-4 px-6 py-3 bg-green-500 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50"></div>
+
+    <!-- 邮件提示 -->
+    <div class="email-toast" id="emailToast"></div>
 
     <script>
-        // 任务数据
-        const defaultTasks = [
-            { id: 'main_image', name: '主图', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 1 },
-            { id: 'video', name: '视频', responsible: '王政', email: '386319800@qq.com', status: 'pending', order: 2 },
-            { id: 'short_video', name: '短视频', responsible: '王政', email: '386319800@qq.com', status: 'pending', order: 3 },
-            { id: 'new_product', name: '新品运营中心素材补全', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 4 },
-            { id: 'buyer_show', name: '买家秀模块', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 5 },
-            { id: 'qna', name: '问大家', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', order: 6 },
-            { id: 'sales', name: '销量', responsible: '灵活调整', email: '386319800@qq.com', status: 'pending', order: 7 },
-            { id: 'review', name: '评价', responsible: '鑫垭', email: '386319800@qq.com', status: 'pending', dependencies: ['sales'], order: 8 },
-            { id: 'promotion', name: '推广', responsible: '待定', email: '386319800@qq.com', status: 'pending', order: 9 }
+        // 款式列表
+        const STYLES = ["2406", "1901", "2233X", "2406W", "2332", "2330", "2503", "2505", "2221N", "2689", "2685", "2233BW", "2503Q", "2407B", "2406X", "087N", "0087W", "2505Q", "PDD_10", "2233N", "2409B", "2409", "2406Q", "3610B", "2511", "2233BN", "0087", "001Y", "0028", "005R", "0081B", "028B", "087B", "1900", "2002A", "2009", "2013", "21051X", "21057B", "2201", "2221", "2221M", "2233Q", "2236", "2260A", "2361", "2369", "24059", "2411", "24775B", "2505B", "2510", "2515", "2515B", "2518", "2525", "3610", "3612", "5252", "5555", "775A", "775X", "BUFA", "Z003"];
+
+        // 工作流程任务
+        const WORKFLOW_TASKS = [
+            { id: 'main_image', name: '主图【鑫垭】', assignee: '鑫垭' },
+            { id: 'video', name: '视频【王政】', assignee: '王政' },
+            { id: 'review', name: '评价【鑫垭】', assignee: '鑫垭' },
+            { id: 'buyer_show', name: '买家秀模块【鑫垭】', assignee: '鑫垭' },
+            { id: 'qna', name: '问大家【鑫垭】', assignee: '鑫垭' },
+            { id: 'material', name: '新品运营中心素材补全【鑫垭】', assignee: '鑫垭' },
+            { id: 'sales', name: '销量计划', assignee: '运营' },
+            { id: 'micro', name: '微淘发布', assignee: '鑫垭' },
+            { id: 'short_video', name: '短视频【王政】', assignee: '王政' }
         ];
-        
-        let tasks = [];
-        let currentTask = null;
-        let selectedFile = null;
-        
-        // 初始化
-        function init() {
-            const saved = localStorage.getItem('tmall_tasks');
-            if (saved) {
-                tasks = JSON.parse(saved);
-            } else {
-                tasks = defaultTasks.map(t => ({...t, screenshot: null, completed_at: null}));
+
+        // 邮箱配置
+        const EMAIL_CONFIG = {
+            from: '15005818906@coze.email',
+            to: '386319800@qq.com'
+        };
+
+        // 数据管理
+        const DataManager = {
+            STORAGE_KEY: 'tmall_workflow_data',
+
+            init() {
+                const saved = localStorage.getItem(this.STORAGE_KEY);
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+                // 初始化数据结构
+                const data = {
+                    styles: STYLES,
+                    workflows: {}
+                };
+                STYLES.forEach(style => {
+                    data.workflows[style] = {};
+                    WORKFLOW_TASKS.forEach(task => {
+                        data.workflows[style][task.id] = {
+                            status: 'pending',
+                            completed_at: null
+                        };
+                    });
+                });
+                this.save(data);
+                return data;
+            },
+
+            save(data) {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            },
+
+            getData() {
+                const saved = localStorage.getItem(this.STORAGE_KEY);
+                return saved ? JSON.parse(saved) : this.init();
+            },
+
+            updateTaskStatus(style, taskId, status) {
+                const data = this.getData();
+                data.workflows[style][taskId].status = status;
+                data.workflows[style][taskId].completed_at = status === 'completed' 
+                    ? new Date().toISOString() 
+                    : null;
+                this.save(data);
+                return data.workflows[style][taskId];
+            },
+
+            getStyleProgress(style) {
+                const data = this.getData();
+                const workflow = data.workflows[style];
+                const completed = Object.values(workflow).filter(t => t.status === 'completed').length;
+                return {
+                    completed,
+                    total: WORKFLOW_TASKS.length,
+                    percent: Math.round((completed / WORKFLOW_TASKS.length) * 100)
+                };
+            },
+
+            getOverallStats() {
+                const data = this.getData();
+                let totalCompleted = 0;
+                let totalTasks = STYLES.length * WORKFLOW_TASKS.length;
+                
+                STYLES.forEach(style => {
+                    Object.values(data.workflows[style]).forEach(task => {
+                        if (task.status === 'completed') totalCompleted++;
+                    });
+                });
+                
+                return {
+                    totalStyles: STYLES.length,
+                    totalTasks,
+                    completedTasks: totalCompleted,
+                    percent: Math.round((totalCompleted / totalTasks) * 100)
+                };
             }
-            renderTasks();
-            updateProgress();
-        }
-        
-        // 保存数据
-        function saveData() {
-            localStorage.setItem('tmall_tasks', JSON.stringify(tasks));
-        }
-        
-        // 渲染任务
-        function renderTasks() {
-            const container = document.getElementById('taskList');
-            container.innerHTML = '';
-            
-            tasks.forEach(task => {
-                const isAvailable = checkTaskAvailable(task);
-                const card = document.createElement('div');
-                card.className = 'card rounded-xl overflow-hidden ' + 
-                    (task.status === 'completed' ? 'ring-2 ring-green-500' : '') +
-                    (task.status === 'in_progress' ? 'ring-2 ring-amber-500' : '') +
-                    (!isAvailable ? 'opacity-60' : '');
-                
-                let statusBadge = '';
-                let statusText = '';
-                let statusColor = '';
-                
-                if (task.status === 'completed') {
-                    statusText = '✓ 已完成';
-                    statusColor = 'bg-green-500';
-                } else if (task.status === 'in_progress') {
-                    statusText = '▶ 进行中';
-                    statusColor = 'bg-amber-500';
-                } else if (!isAvailable) {
-                    statusText = '⛔ 等待中';
-                    statusColor = 'bg-red-500';
-                } else {
-                    statusText = '○ 待开始';
-                    statusColor = 'bg-slate-600';
-                }
-                
-                let buttonHtml = '';
-                if (task.status === 'pending' && isAvailable) {
-                    buttonHtml = `<button onclick="startTask('${task.id}')" class="w-full py-2 bg-amber-500 hover:bg-amber-600 rounded-lg font-medium">开始执行</button>`;
-                } else if (task.status === 'in_progress') {
-                    buttonHtml = `<button onclick="openUploadModal('${task.id}')" class="w-full py-2 bg-green-500 hover:bg-green-600 rounded-lg font-medium">上传截图完成</button>`;
-                } else if (task.status === 'completed') {
-                    buttonHtml = `<button onclick="undoTask('${task.id}')" class="w-full py-2 bg-slate-600 hover:bg-slate-500 rounded-lg">撤销</button>`;
-                }
-                
-                let depHtml = '';
-                if (task.dependencies && task.dependencies.length > 0) {
-                    const dep = tasks.find(t => t.id === task.dependencies[0]);
-                    if (dep) {
-                        const depColor = dep.status === 'completed' ? 'bg-green-500/30 text-green-400' : 'bg-amber-500/30 text-amber-400';
-                        depHtml = `<div class="mb-3"><span class="text-xs text-slate-400">依赖：</span><span class="text-xs px-2 py-1 rounded ${depColor}">${dep.name}</span></div>`;
+        };
+
+        // 邮件服务（预留接口）
+        const EmailService = {
+            async send(styleName, taskName, completedAt) {
+                // 预留API调用接口
+                // 实际使用时替换为真实的API调用
+                const payload = {
+                    from: EMAIL_CONFIG.from,
+                    to: EMAIL_CONFIG.to,
+                    subject: `【审核提醒】款式 ${styleName} - ${taskName} 已完成`,
+                    body: `
+款式：${styleName}
+任务：${taskName}
+完成时间：${new Date(completedAt).toLocaleString('zh-CN')}
+                    `.trim()
+                };
+
+                console.log('📧 邮件发送请求:', payload);
+
+                // 模拟API调用延迟
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        // 实际场景中使用 fetch 调用后端API
+                        // await fetch('/api/send-email', {
+                        //     method: 'POST',
+                        //     headers: { 'Content-Type': 'application/json' },
+                        //     body: JSON.stringify(payload)
+                        // });
+                        
+                        resolve({ success: true, payload });
+                    }, 500);
+                });
+            }
+        };
+
+        // UI管理
+        const UIManager = {
+            currentStyle: null,
+
+            init() {
+                this.renderStyleList();
+                this.bindEvents();
+            },
+
+            renderStyleList(filter = '') {
+                const list = document.getElementById('styleList');
+                const filteredStyles = STYLES.filter(s => 
+                    s.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                list.innerHTML = filteredStyles.map(style => {
+                    const progress = DataManager.getStyleProgress(style);
+                    let badgeClass, badgeText;
+                    
+                    if (progress.completed === 0) {
+                        badgeClass = 'badge-pending';
+                        badgeText = '待开始';
+                    } else if (progress.completed === progress.total) {
+                        badgeClass = 'badge-completed';
+                        badgeText = '已完成';
+                    } else {
+                        badgeClass = 'badge-progress';
+                        badgeText = '进行中';
                     }
-                }
-                
-                let screenshotHtml = '';
-                if (task.screenshot) {
-                    screenshotHtml = `<div class="mb-3"><img src="${task.screenshot}" class="w-full h-24 object-cover rounded-lg"></div>`;
-                }
-                
-                let completedHtml = '';
-                if (task.completed_at) {
-                    completedHtml = `<div class="text-xs text-green-400 mb-2">完成于：${task.completed_at}</div>`;
-                }
-                
-                card.innerHTML = `
-                    <div class="p-4 border-b border-white/10 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 ${statusColor} rounded-lg flex items-center justify-center font-bold">${task.order}</div>
-                            <div>
-                                <h3 class="font-bold">${task.name}</h3>
-                                <p class="text-sm text-purple-300">${task.responsible}</p>
+
+                    return `
+                        <div class="style-item ${this.currentStyle === style ? 'active' : ''}" 
+                             data-style="${style}">
+                            <div class="style-item-header">
+                                <span class="style-name">${style}</span>
+                                <span class="style-badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress.percent}%"></div>
+                            </div>
+                            <div class="style-meta">
+                                <span>${progress.completed}/${progress.total} 任务</span>
+                                <span>${progress.percent}%</span>
                             </div>
                         </div>
-                        <span class="px-2 py-1 rounded text-xs ${statusColor}">${statusText}</span>
+                    `;
+                }).join('');
+            },
+
+            renderWorkflowPanel(style) {
+                const panel = document.getElementById('workflowPanel');
+                const data = DataManager.getData();
+                const workflow = data.workflows[style];
+                const stats = DataManager.getOverallStats();
+                const styleProgress = DataManager.getStyleProgress(style);
+
+                panel.innerHTML = `
+                    <!-- 统计栏 -->
+                    <div class="stats-bar">
+                        <div class="stat-card highlight">
+                            <div class="value">${stats.completedTasks}</div>
+                            <div class="label">已完成任务</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">${stats.totalTasks - stats.completedTasks}</div>
+                            <div class="label">待完成任务</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value">${stats.percent}%</div>
+                            <div class="label">总进度</div>
+                        </div>
                     </div>
-                    <div class="p-4">
-                        ${depHtml}
-                        ${screenshotHtml}
-                        ${completedHtml}
-                        ${buttonHtml}
+
+                    <!-- 当前款式头部 -->
+                    <div class="workflow-header">
+                        <div class="current-style">📋 当前款式：${style}</div>
+                        <div class="current-style-en">Style: ${style}</div>
+                        <div class="overall-progress">
+                            <span class="label">款式进度</span>
+                            <div class="bar">
+                                <div class="fill" style="width: ${styleProgress.percent}%"></div>
+                            </div>
+                            <span class="percent">${styleProgress.percent}%</span>
+                        </div>
+                    </div>
+
+                    <!-- 任务卡片网格 -->
+                    <div class="workflow-grid">
+                        ${WORKFLOW_TASKS.map((task, index) => {
+                            const taskData = workflow[task.id];
+                            const isCompleted = taskData.status === 'completed';
+                            
+                            return `
+                                <div class="task-card ${isCompleted ? 'completed' : ''}" data-task="${task.id}">
+                                    <div class="task-card-header">
+                                        <span class="task-index">${index + 1}</span>
+                                        <span class="task-status ${isCompleted ? 'status-completed' : 'status-pending'}">
+                                            ${isCompleted ? '✓ 已完成' : '○ 待处理'}
+                                        </span>
+                                    </div>
+                                    <div class="task-title">${task.name}</div>
+                                    <div class="task-assignee">负责人：${task.assignee}</div>
+                                    <div class="task-card-actions">
+                                        ${isCompleted ? `
+                                            <button class="btn btn-reset" onclick="App.resetTask('${style}', '${task.id}')">
+                                                🔄 重置
+                                            </button>
+                                        ` : `
+                                            <button class="btn btn-complete" onclick="App.completeTask('${style}', '${task.id}')">
+                                                ✓ 完成
+                                            </button>
+                                        `}
+                                    </div>
+                                    ${isCompleted && taskData.completed_at ? `
+                                        <div class="completed-info">
+                                            完成时间：<span class="time">${new Date(taskData.completed_at).toLocaleString('zh-CN')}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
+            },
+
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('emailToast');
+                toast.className = `email-toast ${type}`;
+                toast.innerHTML = type === 'success' 
+                    ? `<span>✓</span> ${message}`
+                    : `<span>✗</span> ${message}`;
+                toast.classList.add('show');
                 
-                container.appendChild(card);
-            });
-        }
-        
-        // 检查任务是否可用
-        function checkTaskAvailable(task) {
-            if (!task.dependencies || task.dependencies.length === 0) return true;
-            
-            for (const depId of task.dependencies) {
-                const dep = tasks.find(t => t.id === depId);
-                if (!dep || dep.status !== 'completed') return false;
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            },
+
+            bindEvents() {
+                // 款式搜索
+                document.getElementById('styleSearch').addEventListener('input', (e) => {
+                    this.renderStyleList(e.target.value);
+                });
+
+                // 款式点击
+                document.getElementById('styleList').addEventListener('click', (e) => {
+                    const item = e.target.closest('.style-item');
+                    if (item) {
+                        const style = item.dataset.style;
+                        this.currentStyle = style;
+                        this.renderStyleList(document.getElementById('styleSearch').value);
+                        this.renderWorkflowPanel(style);
+                    }
+                });
             }
-            return true;
-        }
-        
-        // 更新进度
-        function updateProgress() {
-            const completed = tasks.filter(t => t.status === 'completed').length;
-            const total = tasks.length;
-            const percent = Math.round((completed / total) * 100);
-            
-            document.getElementById('progressText').textContent = `${completed} / ${total} (${percent}%)`;
-            document.getElementById('progressBar').style.width = percent + '%';
-        }
-        
-        // 开始任务
-        function startTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'in_progress';
-                saveData();
-                renderTasks();
-                showToast('任务已开始', 'success');
+        };
+
+        // 应用入口
+        const App = {
+            async init() {
+                DataManager.init();
+                UIManager.init();
+            },
+
+            async completeTask(style, taskId) {
+                const task = DataManager.updateTaskStatus(style, taskId, 'completed');
+                UIManager.renderWorkflowPanel(style);
+                UIManager.renderStyleList(document.getElementById('styleSearch').value);
+
+                // 获取任务名称
+                const taskInfo = WORKFLOW_TASKS.find(t => t.id === taskId);
+
+                // 发送邮件通知
+                try {
+                    await EmailService.send(style, taskInfo.name, task.completed_at);
+                    UIManager.showToast(`📧 已通知老司机：${style} - ${taskInfo.name} 已完成`);
+                } catch (error) {
+                    UIManager.showToast('邮件发送失败', 'error');
+                }
+            },
+
+            resetTask(style, taskId) {
+                DataManager.updateTaskStatus(style, taskId, 'pending');
+                UIManager.renderWorkflowPanel(style);
+                UIManager.renderStyleList(document.getElementById('styleSearch').value);
+                UIManager.showToast('任务已重置');
             }
-        }
-        
-        // 打开上传对话框
-        function openUploadModal(taskId) {
-            currentTask = tasks.find(t => t.id === taskId);
-            if (currentTask) {
-                document.getElementById('uploadTaskName').textContent = currentTask.name;
-                document.getElementById('uploadModal').classList.remove('hidden');
-                document.getElementById('previewImg').classList.add('hidden');
-                document.getElementById('confirmBtn').disabled = true;
-                selectedFile = null;
-            }
-        }
-        
-        // 关闭上传对话框
-        function closeUploadModal() {
-            document.getElementById('uploadModal').classList.add('hidden');
-            currentTask = null;
-            selectedFile = null;
-        }
-        
-        // 文件选择
-        document.getElementById('dropZone').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
+        };
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
         });
-        
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                handleFile(e.target.files[0]);
-            }
-        });
-        
-        function handleFile(file) {
-            if (file && file.type.startsWith('image/')) {
-                selectedFile = file;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('previewImg').src = e.target.result;
-                    document.getElementById('previewImg').classList.remove('hidden');
-                    document.getElementById('confirmBtn').disabled = false;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        // 确认上传
-        function confirmUpload() {
-            if (currentTask && selectedFile) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    currentTask.screenshot = e.target.result;
-                    currentTask.status = 'completed';
-                    currentTask.completed_at = new Date().toLocaleString('zh-CN');
-                    saveData();
-                    renderTasks();
-                    updateProgress();
-                    closeUploadModal();
-                    showToast('任务完成！已发送审核邮件', 'success');
-                    
-                    // 发送邮件提醒（模拟）
-                    sendEmail(currentTask);
-                };
-                reader.readAsDataURL(selectedFile);
-            }
-        }
-        
-        // 撤销任务
-        function undoTask(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.status = 'pending';
-                task.screenshot = null;
-                task.completed_at = null;
-                saveData();
-                renderTasks();
-                updateProgress();
-                showToast('任务已撤销', 'warning');
-            }
-        }
-        
-        // 发送邮件
-        function sendEmail(task) {
-            console.log('发送邮件给老司机审核:', task.name, task.email);
-            // 实际邮件发送需要后端支持
-        }
-        
-        // Toast通知
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-transform duration-300 ' + 
-                (type === 'success' ? 'bg-green-500' : 'bg-amber-500');
-            toast.style.transform = 'translateX(0)';
-            
-            setTimeout(() => {
-                toast.style.transform = 'translateX(150%)';
-            }, 3000);
-        }
-        
-        // 页面加载完成后初始化
-        init();
     </script>
 </body>
 </html>
