@@ -640,12 +640,6 @@
             color: #059669;
         }
         
-        .day-btn.add-order {
-            background: #f3f4f6;
-            color: #6b7280;
-            border: 1px dashed #d1d5db;
-        }
-        
         .day-screenshot {
             margin-bottom: 8px;
         }
@@ -705,12 +699,12 @@
         .order-status.in-progress { background: #fef3c7; color: #d97706; }
         .order-status.completed { background: #d1fae5; color: #059669; }
         
-        /* 关键词显示 */
-        .keyword-container {
+        /* 关键词列表显示 */
+        .keyword-list-container {
             margin-bottom: 8px;
         }
         
-        .keyword-toggle {
+        .keyword-list-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -722,34 +716,62 @@
             color: #6b7280;
         }
         
-        .keyword-toggle:hover {
+        .keyword-list-header:hover {
             background: #e5e7eb;
         }
         
-        .keyword-toggle .arrow {
+        .keyword-list-header .arrow {
             transition: transform 0.2s;
         }
         
-        .keyword-toggle.expanded .arrow {
+        .keyword-list-header.expanded .arrow {
             transform: rotate(180deg);
         }
         
-        .keyword-text {
+        .keyword-list {
             display: none;
-            padding: 8px 10px;
-            background: #fafafa;
-            border-radius: 6px;
-            font-size: 11px;
-            color: #333;
             margin-top: 4px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            max-height: 100px;
-            overflow-y: auto;
         }
         
-        .keyword-text.show {
+        .keyword-list.show {
             display: block;
+        }
+        
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: #fafafa;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .keyword-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .keyword-item-text {
+            flex: 1;
+            word-break: break-all;
+        }
+        
+        .keyword-item-copy {
+            padding: 3px 8px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+        
+        .keyword-item-copy:hover {
+            background: #2563eb;
         }
         
         .keyword-actions {
@@ -947,7 +969,7 @@
         
         .form-group textarea {
             resize: vertical;
-            min-height: 60px;
+            min-height: 100px;
         }
         
         .form-group .hint {
@@ -1364,9 +1386,9 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>关键词文本</label>
-                    <textarea id="keywordTextInput" placeholder="请输入关键词文本，每行一个或用逗号分隔"></textarea>
-                    <div class="hint">输入完成后点击确认保存</div>
+                    <label>关键词列表（每行一个）</label>
+                    <textarea id="keywordTextInput" placeholder="请输入关键词，每行一个关键词"></textarea>
+                    <div class="hint">输入完成后点击确认保存，新关键词会追加到列表中</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1446,6 +1468,11 @@
             return 'style_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
         
+        // 生成关键词ID
+        function generateKeywordId() {
+            return 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
         // 初始化
         function init() {
             loadData();
@@ -1508,7 +1535,7 @@
                     };
                 });
                 
-                // 销量计划 - 7天，每天可多个订单
+                // 销量计划 - 7天，每天只有1个订单
                 workflows[styleId].sales_plan = {
                     id: 'sales_plan',
                     name: '销量计划',
@@ -1521,8 +1548,8 @@
                     workflows[styleId].sales_plan.days[`day${i}`] = {
                         day: i,
                         orders: [
-                            // 默认创建1个订单
-                            createNewOrder(i, 1)
+                            // 每天固定只有1个订单
+                            createNewOrder(i)
                         ]
                     };
                 }
@@ -1538,12 +1565,11 @@
             }
         }
         
-        // 创建新订单
-        function createNewOrder(dayNum, orderNum) {
+        // 创建新订单（每天固定只有1个订单）
+        function createNewOrder(dayNum) {
             return {
-                id: `day${dayNum}_order${orderNum}`,
-                keywords: '',
-                keywordUploadedAt: null,
+                id: `day${dayNum}`,
+                keywords: [], // 改为关键词数组
                 claimed: false,
                 claimedAt: null,
                 completed: false,
@@ -2196,8 +2222,8 @@
                 dayStatusClass = 'in-progress';
             }
             
-            let ordersHtml = dayData.orders.map((order, orderIndex) => {
-                return renderOrderCard(order, dayNum, orderIndex + 1);
+            let ordersHtml = dayData.orders.map((order) => {
+                return renderOrderCard(order, dayNum);
             }).join('');
             
             return `
@@ -2209,13 +2235,12 @@
                         </span>
                     </div>
                     ${ordersHtml}
-                    <button class="day-btn add-order" onclick="addNewOrder(${dayNum})">+ 新增销量单</button>
                 </div>
             `;
         }
         
-        // 渲染订单卡片
-        function renderOrderCard(order, dayNum, orderNum) {
+        // 渲染订单卡片（简化版，每天只有1个订单）
+        function renderOrderCard(order, dayNum) {
             let orderStatusClass = '';
             let orderStatusText = '';
             
@@ -2228,24 +2253,31 @@
             } else if (order.claimed) {
                 orderStatusClass = 'in-progress';
                 orderStatusText = '进行中';
-            } else if (order.keywords) {
+            } else if (order.keywords && order.keywords.length > 0) {
                 orderStatusText = '待领取';
             } else {
                 orderStatusText = '待填关键词';
             }
             
-            // 关键词显示
+            // 关键词列表显示
             let keywordHtml = '';
-            if (order.keywords) {
+            if (order.keywords && order.keywords.length > 0) {
+                const hasKeywords = order.keywords.length > 0;
+                const headerIcon = hasKeywords ? '✓' : '';
+                
                 keywordHtml = `
-                    <div class="keyword-container">
-                        <div class="keyword-toggle" onclick="toggleKeyword(this)">
-                            <span>关键词 ${order.keywordUploadedAt ? '✓' : ''}</span>
+                    <div class="keyword-list-container">
+                        <div class="keyword-list-header" onclick="toggleKeywordList(this)">
+                            <span>关键词列表 (${order.keywords.length}) ${headerIcon}</span>
                             <span class="arrow">▼</span>
                         </div>
-                        <div class="keyword-text">${order.keywords}</div>
-                        <div class="keyword-actions">
-                            <button class="copy-btn" onclick="copyKeywords('${order.id}')">复制</button>
+                        <div class="keyword-list">
+                            ${order.keywords.map(kw => `
+                                <div class="keyword-item">
+                                    <span class="keyword-item-text">${kw.text}</span>
+                                    <button class="keyword-item-copy" onclick="copyKeyword('${dayNum}', '${order.id}', '${kw.id}', event)">复制</button>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
@@ -2264,14 +2296,9 @@
             // 操作按钮
             let actionsHtml = '';
             
-            // 老司机填写关键词
-            if (!order.keywords) {
+            // 老司机填写关键词（只有未领取时才能添加）
+            if (!order.claimed) {
                 actionsHtml += `<button class="day-btn keyword" onclick="openKeywordModal(${dayNum}, '${order.id}')">老司机上传关键词</button>`;
-            }
-            
-            // 鑫垭领取任务
-            if (order.keywords && !order.claimed) {
-                actionsHtml += `<button class="day-btn claim" onclick="claimOrderTask(${dayNum}, '${order.id}')">开干</button>`;
             }
             
             // 鑫垭上传完成截图
@@ -2285,7 +2312,7 @@
             return `
                 <div class="order-card ${orderStatusClass}">
                     <div class="order-header">
-                        <span class="order-title">第${dayNum}天-单${orderNum}</span>
+                        <span class="order-title">第${dayNum}天</span>
                         <span class="order-status ${orderStatusClass}">${orderStatusText}</span>
                     </div>
                     ${keywordHtml}
@@ -2353,37 +2380,53 @@
             `;
         }
         
-        // 切换关键词展开/收起
-        function toggleKeyword(element) {
+        // 切换关键词列表展开/收起
+        function toggleKeywordList(element) {
             element.classList.toggle('expanded');
-            const textDiv = element.nextElementSibling;
-            if (textDiv) {
-                textDiv.classList.toggle('show');
+            const listDiv = element.nextElementSibling;
+            if (listDiv) {
+                listDiv.classList.toggle('show');
             }
         }
         
-        // 复制关键词
-        function copyKeywords(orderId) {
+        // 复制单个关键词（鑫垭复制后自动开干）
+        function copyKeyword(dayNum, orderId, keywordId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
             if (!currentStyleId) return;
             
             const workflow = getStyleWorkflow(currentStyleId);
-            let keywords = '';
+            const dayKey = `day${dayNum}`;
+            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === orderId);
             
-            // 找到对应的订单
-            Object.values(workflow.sales_plan.days).forEach(day => {
-                const order = day.orders.find(o => o.id === orderId);
-                if (order && order.keywords) {
-                    keywords = order.keywords;
+            if (!order) return;
+            
+            // 找到对应的关键词
+            const keyword = order.keywords.find(kw => kw.id === keywordId);
+            if (!keyword) return;
+            
+            // 1. 复制关键词到剪贴板
+            navigator.clipboard.writeText(keyword.text).then(() => {
+                // 2. 自动设置 claimed = true, claimedAt = now（如果尚未领取）
+                if (!order.claimed) {
+                    order.claimed = true;
+                    order.claimedAt = new Date().toLocaleString('zh-CN');
                 }
+                
+                // 3. 保存数据
+                saveData();
+                
+                // 4. 刷新界面
+                renderTasks();
+                renderStyleList();
+                
+                // 5. 显示提示
+                showToast('已复制并开始任务');
+            }).catch(() => {
+                showToast('复制失败', 'error');
             });
-            
-            if (keywords) {
-                navigator.clipboard.writeText(keywords).then(() => {
-                    showToast('关键词已复制');
-                }).catch(() => {
-                    showToast('复制失败', 'error');
-                });
-            }
         }
         
         // 切换销量计划展开/收起
@@ -2397,22 +2440,6 @@
             if (toggle) {
                 toggle.classList.toggle('expanded', salesPlanExpanded);
             }
-        }
-        
-        // 添加新订单
-        function addNewOrder(dayNum) {
-            if (!currentStyleId) return;
-            
-            const workflow = getStyleWorkflow(currentStyleId);
-            const dayKey = `day${dayNum}`;
-            const orderNum = workflow.sales_plan.days[dayKey].orders.length + 1;
-            
-            workflow.sales_plan.days[dayKey].orders.push(createNewOrder(dayNum, orderNum));
-            
-            saveData();
-            renderTasks();
-            renderStyleList();
-            showToast(`第${dayNum}天已新增销量单${orderNum}`);
         }
         
         // 领取订单任务
@@ -2430,7 +2457,7 @@
                 saveData();
                 renderTasks();
                 renderStyleList();
-                showToast(`第${dayNum}天-${orderId.split('_')[1]}任务已领取`);
+                showToast(`第${dayNum}天任务已领取`);
             }
         }
         
@@ -2509,9 +2536,8 @@
             currentDayNum = dayNum;
             currentOrderId = orderId;
             
-            const orderNum = orderId.split('_')[1];
             document.getElementById('keywordModalTitle').textContent = '老司机上传关键词';
-            document.getElementById('keywordTaskName').textContent = `第${dayNum}天-${orderNum}`;
+            document.getElementById('keywordTaskName').textContent = `第${dayNum}天`;
             document.getElementById('keywordTextInput').value = '';
             
             document.getElementById('keywordModal').classList.add('show');
@@ -2524,7 +2550,7 @@
             currentOrderId = null;
         }
         
-        // 保存关键词
+        // 保存关键词（支持多关键词，每行一个）
         function saveKeyword() {
             if (!currentStyleId || !currentDayNum || !currentOrderId) return;
             
@@ -2539,14 +2565,27 @@
             const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === currentOrderId);
             
             if (order) {
-                order.keywords = keywordText;
-                order.keywordUploadedAt = new Date().toLocaleString('zh-CN');
+                // 按行分割关键词，每行一个
+                const lines = keywordText.split('\n').map(line => line.trim()).filter(line => line);
+                
+                // 追加新关键词到列表
+                lines.forEach(text => {
+                    // 检查是否已存在相同关键词
+                    const exists = order.keywords.some(kw => kw.text === text);
+                    if (!exists) {
+                        order.keywords.push({
+                            id: generateKeywordId(),
+                            text: text,
+                            addedAt: new Date().toLocaleString('zh-CN')
+                        });
+                    }
+                });
                 
                 saveData();
                 renderTasks();
                 renderStyleList();
                 closeKeywordModal();
-                showToast('关键词已保存');
+                showToast(`已添加 ${lines.length} 个关键词`);
             }
         }
         
@@ -2562,25 +2601,23 @@
                 const parts = taskId.split('_');
                 const dayNum = parseInt(parts[1]);
                 const orderId = parts.slice(2).join('_');
-                const orderNum = orderId.split('_')[1];
                 
                 currentDayNum = dayNum;
                 currentOrderId = orderId;
                 
                 document.getElementById('uploadModalTitle').textContent = '上传完成截图';
-                document.getElementById('uploadTaskName').textContent = `第${dayNum}天-${orderNum} - 鑫垭完成任务`;
+                document.getElementById('uploadTaskName').textContent = `第${dayNum}天 - 鑫垭完成任务`;
             } else if (taskId.startsWith('review_')) {
                 // 评价任务截图
                 const parts = taskId.split('_');
                 const dayNum = parseInt(parts[1]);
                 const orderId = parts.slice(2).join('_');
-                const orderNum = orderId.split('_')[1];
                 
                 currentDayNum = dayNum;
                 currentOrderId = orderId;
                 
                 document.getElementById('uploadModalTitle').textContent = '上传评价完成截图';
-                document.getElementById('uploadTaskName').textContent = `第${dayNum}天-${orderNum} - 评价任务`;
+                document.getElementById('uploadTaskName').textContent = `第${dayNum}天 - 评价任务`;
             } else {
                 // 普通任务
                 currentTask = workflow[taskId];
