@@ -704,37 +704,17 @@
             margin-bottom: 8px;
         }
         
-        .keyword-list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .keyword-list-title {
             padding: 6px 10px;
             background: #f3f4f6;
             border-radius: 6px;
-            cursor: pointer;
             font-size: 11px;
             color: #6b7280;
-        }
-        
-        .keyword-list-header:hover {
-            background: #e5e7eb;
-        }
-        
-        .keyword-list-header .arrow {
-            transition: transform 0.2s;
-        }
-        
-        .keyword-list-header.expanded .arrow {
-            transform: rotate(180deg);
+            font-weight: 500;
         }
         
         .keyword-list {
-            display: none;
             margin-top: 4px;
-        }
-        
-        .keyword-list.show {
-            display: block;
         }
         
         .keyword-item {
@@ -758,20 +738,14 @@
             word-break: break-all;
         }
         
-        .keyword-item-copy {
-            padding: 3px 8px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            margin-left: 8px;
-            flex-shrink: 0;
-        }
-        
-        .keyword-item-copy:hover {
-            background: #2563eb;
+        .order-completed-info {
+            padding: 8px 12px;
+            background: #d1fae5;
+            color: #059669;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
         }
         
         .keyword-actions {
@@ -1473,6 +1447,22 @@
             return 'kw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
         
+        // 兼容旧数据 - 将旧格式转换为新格式
+        function normalizeOrderStatus(order) {
+            if (!order.status) {
+                if (order.completed && order.review && order.review.completed) {
+                    order.status = 'completed';
+                } else if (order.claimed) {
+                    order.status = 'waiting_complete';
+                } else if (order.keywords && order.keywords.length > 0) {
+                    order.status = 'waiting_claim';
+                } else {
+                    order.status = 'pending';
+                }
+            }
+            return order;
+        }
+        
         // 初始化
         function init() {
             loadData();
@@ -1569,10 +1559,8 @@
         function createNewOrder(dayNum) {
             return {
                 id: `day${dayNum}`,
-                keywords: [], // 改为关键词数组
-                claimed: false,
-                claimedAt: null,
-                completed: false,
+                keywords: [],
+                status: 'pending',
                 completedAt: null,
                 screenshot: null,
                 review: {
@@ -1600,8 +1588,10 @@
             let totalOrders = 0;
             Object.values(workflow.sales_plan.days).forEach(day => {
                 day.orders.forEach(order => {
+                    // 兼容旧数据
+                    normalizeOrderStatus(order);
                     totalOrders++;
-                    if (order.completed) completedOrders++;
+                    if (order.status === 'completed') completedOrders++;
                 });
             });
             // 按比例计算完成天数
@@ -1615,9 +1605,11 @@
             let totalOrders = 0;
             Object.values(workflow.sales_plan.days).forEach(day => {
                 day.orders.forEach(order => {
+                    // 兼容旧数据
+                    normalizeOrderStatus(order);
                     totalOrders++;
-                    if (order.completed && order.review.completed) completedOrders++;
-                    else if (order.completed) completedOrders += 0.5; // 销量完成但评价未完成
+                    if (order.status === 'completed') completedOrders++;
+                    else if (order.status === 'waiting_complete') completedOrders += 0.5; // 销量完成但评价未完成
                 });
             });
             return { completed: Math.round(completedOrders), total: totalOrders };
@@ -2211,10 +2203,13 @@
         
         // 渲染每日任务卡片
         function renderDayCard(dayData, dayNum) {
+            // 兼容旧数据
+            dayData.orders.forEach(order => normalizeOrderStatus(order));
+            
             // 计算天的状态
             let dayStatusClass = '';
-            let allCompleted = dayData.orders.every(o => o.completed && o.review.completed);
-            let someInProgress = dayData.orders.some(o => (o.claimed || o.review.claimed) && !(o.completed && o.review.completed));
+            let allCompleted = dayData.orders.every(o => o.status === 'completed');
+            let someInProgress = dayData.orders.some(o => (o.status === 'waiting_complete' || o.status === 'waiting_claim') && o.status !== 'completed');
             
             if (allCompleted) {
                 dayStatusClass = 'completed';
@@ -2241,41 +2236,39 @@
         
         // 渲染订单卡片（简化版，每天只有1个订单）
         function renderOrderCard(order, dayNum) {
+            // 兼容旧数据
+            normalizeOrderStatus(order);
+            
             let orderStatusClass = '';
             let orderStatusText = '';
             
-            if (order.completed && order.review.completed) {
-                orderStatusClass = 'completed';
-                orderStatusText = '已完成';
-            } else if (order.completed) {
-                orderStatusClass = 'completed';
-                orderStatusText = '销量完成';
-            } else if (order.claimed) {
-                orderStatusClass = 'in-progress';
-                orderStatusText = '进行中';
-            } else if (order.keywords && order.keywords.length > 0) {
-                orderStatusText = '待领取';
-            } else {
-                orderStatusText = '待填关键词';
+            switch (order.status) {
+                case 'completed':
+                    orderStatusClass = 'completed';
+                    orderStatusText = '已完成';
+                    break;
+                case 'waiting_complete':
+                    orderStatusClass = 'in-progress';
+                    orderStatusText = '进行中';
+                    break;
+                case 'waiting_claim':
+                    orderStatusText = '待领取';
+                    break;
+                case 'pending':
+                default:
+                    orderStatusText = '待填关键词';
             }
             
-            // 关键词列表显示
+            // 关键词列表显示（直接显示，不再折叠）
             let keywordHtml = '';
             if (order.keywords && order.keywords.length > 0) {
-                const hasKeywords = order.keywords.length > 0;
-                const headerIcon = hasKeywords ? '✓' : '';
-                
                 keywordHtml = `
                     <div class="keyword-list-container">
-                        <div class="keyword-list-header" onclick="toggleKeywordList(this)">
-                            <span>关键词列表 (${order.keywords.length}) ${headerIcon}</span>
-                            <span class="arrow">▼</span>
-                        </div>
+                        <div class="keyword-list-title">关键词列表 (${order.keywords.length})</div>
                         <div class="keyword-list">
                             ${order.keywords.map(kw => `
                                 <div class="keyword-item">
                                     <span class="keyword-item-text">${kw.text}</span>
-                                    <button class="keyword-item-copy" onclick="copyKeyword('${dayNum}', '${order.id}', '${kw.id}', event)">复制</button>
                                 </div>
                             `).join('')}
                         </div>
@@ -2296,14 +2289,23 @@
             // 操作按钮
             let actionsHtml = '';
             
-            // 老司机填写关键词（只有未领取时才能添加）
-            if (!order.claimed) {
-                actionsHtml += `<button class="day-btn keyword" onclick="openKeywordModal(${dayNum}, '${order.id}')">老司机上传关键词</button>`;
-            }
-            
-            // 鑫垭上传完成截图
-            if (order.claimed && !order.completed) {
-                actionsHtml += `<button class="day-btn complete" onclick="openUploadModal('order_${dayNum}_${order.id}', 'completion')">上传完成截图</button>`;
+            switch (order.status) {
+                case 'pending':
+                    // 待填关键词 - 显示"老司机上传关键词"按钮
+                    actionsHtml += `<button class="day-btn keyword" onclick="openKeywordModal(${dayNum}, '${order.id}')">老司机上传关键词</button>`;
+                    break;
+                case 'waiting_claim':
+                    // 等待鑫垭放单 - 显示关键词列表 + "复制全部"按钮
+                    actionsHtml += `<button class="day-btn claim" onclick="copyAllKeywords(${dayNum}, '${order.id}')">📋 复制全部关键词</button>`;
+                    break;
+                case 'waiting_complete':
+                    // 等待放单完成 - 显示"已完成"按钮
+                    actionsHtml += `<button class="day-btn complete" onclick="completeOrderTask(${dayNum}, '${order.id}')">✓ 已完成</button>`;
+                    break;
+                case 'completed':
+                    // 已完成 - 显示完成信息
+                    actionsHtml += `<div class="order-completed-info">✓ 订单已完成</div>`;
+                    break;
             }
             
             // 评价任务
@@ -2327,12 +2329,15 @@
         function renderReviewCard(order, dayNum, orderId) {
             const review = order.review;
             
+            // 兼容旧数据
+            normalizeOrderStatus(order);
+            
             let reviewStatusText = '';
             if (review.completed) {
                 reviewStatusText = '已完成';
             } else if (review.claimed) {
                 reviewStatusText = '进行中';
-            } else if (order.completed) {
+            } else if (order.status === 'completed') {
                 reviewStatusText = '待领取';
             } else {
                 reviewStatusText = '等待销量完成';
@@ -2356,7 +2361,7 @@
             }
             
             let actionsHtml = '';
-            if (order.completed && !review.completed) {
+            if (order.status === 'completed' && !review.completed) {
                 if (!review.claimed) {
                     actionsHtml += `<button class="review-btn start" onclick="claimReviewTask(${dayNum}, '${orderId}')">开干</button>`;
                 } else if (review.claimed && !review.completed) {
@@ -2380,21 +2385,8 @@
             `;
         }
         
-        // 切换关键词列表展开/收起
-        function toggleKeywordList(element) {
-            element.classList.toggle('expanded');
-            const listDiv = element.nextElementSibling;
-            if (listDiv) {
-                listDiv.classList.toggle('show');
-            }
-        }
-        
-        // 复制单个关键词（鑫垭复制后自动开干）
-        function copyKeyword(dayNum, orderId, keywordId, event) {
-            if (event) {
-                event.stopPropagation();
-            }
-            
+        // 复制全部关键词（鑫垭复制后自动开干）
+        function copyAllKeywords(dayNum, orderId) {
             if (!currentStyleId) return;
             
             const workflow = getStyleWorkflow(currentStyleId);
@@ -2409,24 +2401,17 @@
             const order = dayData.orders[0]; // 每天只有1个订单
             
             // 确保 keywords 是数组
-            if (!Array.isArray(order.keywords)) {
-                order.keywords = [];
-            }
-            
-            // 找到对应的关键词
-            const keyword = order.keywords.find(kw => kw.id === keywordId);
-            if (!keyword) {
-                showToast('关键词不存在', 'error');
+            if (!Array.isArray(order.keywords) || order.keywords.length === 0) {
+                showToast('没有关键词可复制', 'error');
                 return;
             }
             
-            // 1. 复制关键词到剪贴板
-            navigator.clipboard.writeText(keyword.text).then(() => {
-                // 2. 自动设置 claimed = true, claimedAt = now（如果尚未领取）
-                if (!order.claimed) {
-                    order.claimed = true;
-                    order.claimedAt = new Date().toLocaleString('zh-CN');
-                }
+            // 1. 复制所有关键词到剪贴板（换行分隔）
+            const allKeywords = order.keywords.map(kw => kw.text).join('\n');
+            navigator.clipboard.writeText(allKeywords).then(() => {
+                // 2. 更新状态为 waiting_complete
+                order.status = 'waiting_complete';
+                order.claimedAt = new Date().toLocaleString('zh-CN');
                 
                 // 3. 保存数据
                 saveData();
@@ -2436,10 +2421,32 @@
                 renderStyleList();
                 
                 // 5. 显示提示
-                showToast('已复制并开始任务');
+                showToast('已复制全部关键词并开始任务');
             }).catch(() => {
                 showToast('复制失败', 'error');
             });
+        }
+        
+        // 完成订单任务
+        function completeOrderTask(dayNum, orderId) {
+            if (!currentStyleId) return;
+            
+            const workflow = getStyleWorkflow(currentStyleId);
+            const dayKey = `day${dayNum}`;
+            const dayData = workflow.sales_plan.days[dayKey];
+            
+            if (dayData && dayData.orders && dayData.orders.length > 0) {
+                const order = dayData.orders[0];
+                
+                // 更新状态为已完成
+                order.status = 'completed';
+                order.completedAt = new Date().toLocaleString('zh-CN');
+                
+                saveData();
+                renderTasks();
+                renderStyleList();
+                showToast(`第${dayNum}天订单已完成`);
+            }
         }
         
         // 切换销量计划展开/收起
@@ -2457,22 +2464,8 @@
         
         // 领取订单任务（已弃用，现在通过复制关键词自动领取）
         function claimOrderTask(dayNum, orderId) {
-            if (!currentStyleId) return;
-            
-            const workflow = getStyleWorkflow(currentStyleId);
-            const dayKey = `day${dayNum}`;
-            const dayData = workflow.sales_plan.days[dayKey];
-            
-            if (dayData && dayData.orders && dayData.orders.length > 0) {
-                const order = dayData.orders[0];
-                order.claimed = true;
-                order.claimedAt = new Date().toLocaleString('zh-CN');
-                
-                saveData();
-                renderTasks();
-                renderStyleList();
-                showToast(`第${dayNum}天任务已领取`);
-            }
+            // 此功能已弃用，改为通过 copyAllKeywords 自动完成
+            showToast('请使用"复制全部关键词"按钮', 'error');
         }
         
         // 领取评价任务
@@ -2613,6 +2606,11 @@
                     }
                 });
                 
+                // 更新状态为 waiting_claim（等待鑫垭放单）
+                if (addedCount > 0) {
+                    order.status = 'waiting_claim';
+                }
+                
                 saveData();
                 renderTasks();
                 renderStyleList();
@@ -2711,9 +2709,9 @@
                         const order = dayData.orders[0]; // 每天只有1个订单
                         
                         if (uploadType === 'completion') {
-                            // 销量订单完成
+                            // 销量订单完成 - 更新状态为 waiting_complete
                             order.screenshot = imageData;
-                            order.completed = true;
+                            order.status = 'waiting_complete';
                             order.completedAt = new Date().toLocaleString('zh-CN');
                             showToast('销量任务完成！');
                         } else if (uploadType === 'review') {
@@ -2721,6 +2719,12 @@
                             order.review.screenshot = imageData;
                             order.review.completed = true;
                             order.review.completedAt = new Date().toLocaleString('zh-CN');
+                            
+                            // 检查销量订单是否也完成，如果完成则更新为 completed
+                            if (order.status === 'waiting_complete') {
+                                order.status = 'completed';
+                            }
+                            
                             showToast('评价任务完成！');
                         }
                     }
