@@ -37,7 +37,7 @@
         
         /* 左侧款式列表 */
         .style-panel {
-            width: 280px;
+            width: 320px;
             background: #fff;
             border-right: 1px solid #e8ecf0;
             display: flex;
@@ -66,6 +66,25 @@
             font-size: 14px;
         }
         
+        .add-style-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            background: rgba(255,255,255,0.2);
+            border: 2px dashed rgba(255,255,255,0.5);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .add-style-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+        
         .style-list {
             flex: 1;
             overflow-y: auto;
@@ -73,45 +92,119 @@
         }
         
         .style-item {
-            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
             margin: 4px 0;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
+            background: #fafafa;
         }
         
-        .style-item:hover { background: #f5f5f5; }
+        .style-item:hover { background: #f0f0f0; }
         
         .style-item.active {
             background: #fff5f0;
             border-color: #ff6b35;
         }
         
+        .style-item.dragging {
+            opacity: 0.5;
+            background: #e0e0e0;
+        }
+        
+        .style-item.drag-over {
+            border-top: 3px solid #ff6b35;
+        }
+        
+        .drag-handle {
+            cursor: grab;
+            padding: 4px 8px;
+            color: #999;
+            font-size: 18px;
+            user-select: none;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .style-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #f5f5f5;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .style-thumb-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #ddd, #eee);
+            margin-right: 10px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .style-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
         .style-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         
-        .style-name {
+        .style-code {
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .style-edit-btn {
+            padding: 2px 8px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+        
+        .style-edit-btn:hover {
+            background: #e5e7eb;
             color: #333;
         }
         
-        .style-progress {
+        .style-shop {
             font-size: 12px;
-            color: #ff6b35;
-            font-weight: 500;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
         }
         
         .style-progress-bar {
             height: 3px;
             background: #eee;
             border-radius: 2px;
-            margin-top: 6px;
             overflow: hidden;
         }
         
@@ -120,6 +213,12 @@
             background: linear-gradient(90deg, #ff6b35, #f7c948);
             border-radius: 2px;
             transition: width 0.3s;
+        }
+        
+        .style-progress {
+            font-size: 11px;
+            color: #ff6b35;
+            font-weight: 500;
         }
         
         /* 右侧工作区 */
@@ -158,6 +257,24 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+        }
+        
+        .workflow-title .product-link {
+            font-size: 13px;
+            color: #666;
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .workflow-title .product-link a {
+            color: #1890ff;
+            text-decoration: none;
+        }
+        
+        .workflow-title .product-link a:hover {
+            text-decoration: underline;
         }
         
         .overall-progress {
@@ -276,6 +393,19 @@
             cursor: pointer;
         }
         
+        .task-time-info {
+            font-size: 12px;
+            color: #059669;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .task-time-info .claimed {
+            color: #d97706;
+        }
+        
         .task-completed-time {
             font-size: 12px;
             color: #059669;
@@ -318,6 +448,179 @@
             color: #6b7280;
         }
         
+        /* 销量计划展开卡片 */
+        .sales-plan-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            transition: all 0.2s;
+            grid-column: 1 / -1;
+        }
+        
+        .sales-plan-header {
+            padding: 16px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sales-plan-header:hover {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        }
+        
+        .sales-plan-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .sales-plan-progress {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .sales-plan-toggle {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .sales-plan-toggle.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .sales-plan-body {
+            display: none;
+            padding: 16px;
+        }
+        
+        .sales-plan-body.show {
+            display: block;
+        }
+        
+        .sales-days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+        
+        /* 每日任务卡片 */
+        .day-card {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .day-card.completed {
+            border: 2px solid #10b981;
+            background: #f0fdf4;
+        }
+        
+        .day-card.in-progress {
+            border: 2px solid #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .day-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .day-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .day-status.pending { background: #f3f4f6; color: #6b7280; }
+        .day-status.waiting-keyword { background: #ede9fe; color: #7c3aed; }
+        .day-status.waiting-claim { background: #fef3c7; color: #d97706; }
+        .day-status.in-progress { background: #dbeafe; color: #2563eb; }
+        .day-status.completed { background: #d1fae5; color: #059669; }
+        
+        .day-time-info {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .day-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .day-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .day-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .day-btn.keyword {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .day-btn.claim {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .day-btn.complete {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .day-btn.claimed {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .day-screenshot {
+            margin-bottom: 8px;
+        }
+        
+        .day-screenshot img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .day-keyword-status {
+            font-size: 11px;
+            color: #7c3aed;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
         /* 上传对话框 */
         .modal {
             display: none;
@@ -347,6 +650,9 @@
         .modal-header {
             padding: 20px;
             border-bottom: 1px solid #e8ecf0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .modal-header h3 {
@@ -361,8 +667,61 @@
             margin-top: 4px;
         }
         
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: #666;
+        }
+        
         .modal-body {
             padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .form-group .hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
         }
         
         .upload-zone {
@@ -426,6 +785,11 @@
         .modal-btn.cancel {
             background: #f3f4f6;
             color: #6b7280;
+        }
+        
+        .modal-btn.danger {
+            background: #fee2e2;
+            color: #dc2626;
         }
         
         .modal-btn.confirm {
@@ -516,6 +880,14 @@
             .task-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .sales-days-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-title .product-link {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -531,8 +903,9 @@
             <div class="panel-header">
                 <h2>款式列表</h2>
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="搜索款式编码..." oninput="filterStyles()">
+                    <input type="text" id="searchInput" placeholder="搜索货号/店铺..." oninput="filterStyles()">
                 </div>
+                <button class="add-style-btn" onclick="openAddStyleModal()">+ 添加款式</button>
             </div>
             <div class="style-list" id="styleList">
                 <!-- 动态生成 -->
@@ -543,20 +916,74 @@
         <div class="workflow-panel" id="workflowPanel">
             <div class="workflow-header">
                 <div class="workflow-title">
-                    <h2 id="currentStyleName">请选择款式</h2>
+                    <div>
+                        <h2 id="currentStyleName">请选择款式</h2>
+                        <div class="product-link" id="productLink"></div>
+                    </div>
                     <button class="back-btn" onclick="showStylePanel()">← 返回</button>
                 </div>
                 <div class="overall-progress">
                     <div class="overall-progress-bar">
                         <div class="overall-progress-fill" id="overallProgressFill" style="width: 0%"></div>
                     </div>
-                    <span class="overall-progress-text" id="overallProgressText">0/9</span>
+                    <span class="overall-progress-text" id="overallProgressText">0/15</span>
                 </div>
             </div>
             <div class="task-container">
                 <div class="task-grid" id="taskGrid">
-                    <p style="text-align: center; color: #999; padding: 40px;">请从左侧选择一个款式</p>
+                    <p style="text-align: center; color: #999; padding: 40px; grid-column: 1/-1;">请从左侧选择一个款式</p>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑款式对话框 -->
+    <div class="modal" id="styleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 id="styleModalTitle">添加款式</h3>
+                    <p id="styleModalSubtitle">粘贴商品链接自动解析</p>
+                </div>
+                <button class="modal-close" onclick="closeStyleModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>商品链接</label>
+                    <input type="text" id="productLinkInput" placeholder="粘贴淘宝/天猫商品链接" oninput="parseProductLink()">
+                    <div class="hint" id="parseHint"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>商品ID</label>
+                    <input type="text" id="productIdInput" placeholder="自动解析或手动输入" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>货号</label>
+                    <input type="text" id="styleCodeInput" placeholder="输入货号">
+                </div>
+                
+                <div class="form-group">
+                    <label>店铺名</label>
+                    <input type="text" id="shopNameInput" placeholder="输入店铺名">
+                </div>
+                
+                <div class="form-group">
+                    <label>主图</label>
+                    <div class="upload-zone" id="mainImageZone" onclick="document.getElementById('mainImageInput').click()">
+                        <input type="file" id="mainImageInput" accept="image/*" style="display:none" onchange="handleMainImageSelect(event)">
+                        <div id="mainImagePlaceholder">
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-text">点击上传主图<br>或从链接自动获取</div>
+                        </div>
+                        <img id="mainImagePreview" class="upload-preview" style="display:none">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeStyleModal()">取消</button>
+                <button class="modal-btn confirm" id="saveStyleBtn" onclick="saveStyle()">确认添加</button>
             </div>
         </div>
     </div>
@@ -565,8 +992,11 @@
     <div class="modal" id="uploadModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>上传完成截图</h3>
-                <p id="uploadTaskName"></p>
+                <div>
+                    <h3 id="uploadModalTitle">上传完成截图</h3>
+                    <p id="uploadTaskName"></p>
+                </div>
+                <button class="modal-close" onclick="closeUploadModal()">×</button>
             </div>
             <div class="modal-body">
                 <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
@@ -595,61 +1025,330 @@
     <div class="toast" id="toast"></div>
     
     <script>
-        // 款式数据
-        const styles = ["2406","1901","2233X","2406W","2332","2330","2503","2505","2221N","2689","2685","2233BW","2503Q","087N","2406X","2407B","0087W","2233N","2409","2409B","2505Q","PDD_10","0087","2406Q","2511","2515B","3610B","001Y","0028","005R","0081B","028B","087B","1900","2002A","2009","2013","21051X","21057B","2201","2221","2221M","2233BN","2233Q","2236","2260A","2361","2369","24059","2411","24775B","2505B","2510","2515","2518","2525","3610","3612","5252","5555","775A","775X","BUFA","Z003"];
+        // 初始款式数据
+        const defaultStyleCodes = ["2406","1901","2233X","2406W","2332","2330","2503","2505","2221N","2689","2685","2233BW","2503Q","087N","2406X","2407B","0087W","2233N","2409","2409B","2505Q","PDD_10","0087","2406Q","2511","2515B","3610B","001Y","0028","005R","0081B","028B","087B","1900","2002A","2009","2013","21051X","21057B","2201","2221","2221M","2233BN","2233Q","2236","2260A","2361","2369","24059","2411","24775B","2505B","2510","2515","2518","2525","3610","3612","5252","5555","775A","775X","BUFA","Z003"];
         
-        // 任务模板
+        // 任务模板（销量计划移除，在这里单独处理）
         const taskTemplate = [
             { id: 'main_image', name: '主图', responsible: '鑫垭', email: '386319800@qq.com' },
             { id: 'video', name: '视频', responsible: '王政', email: '386319800@qq.com' },
             { id: 'buyer_show', name: '买家秀模块', responsible: '鑫垭', email: '386319800@qq.com' },
             { id: 'qna', name: '问大家', responsible: '鑫垭', email: '386319800@qq.com' },
             { id: 'new_product', name: '新品运营中心素材补全', responsible: '鑫垭', email: '386319800@qq.com' },
-            { id: 'sales', name: '销量计划', responsible: '灵活调整', email: '386319800@qq.com' },
-            { id: 'review', name: '评价', responsible: '鑫垭', email: '386319800@qq.com', dependsOn: 'sales', delayDays: 3 },
+            { id: 'review', name: '评价', responsible: '鑫垭', email: '386319800@qq.com', dependsOn: 'sales_plan', delayDays: 3 },
             { id: 'weitao', name: '微淘发布', responsible: '鑫垭', email: '386319800@qq.com', dependsOn: 'review' },
             { id: 'short_video', name: '短视频', responsible: '王政', email: '386319800@qq.com' }
         ];
         
         // 工作流数据
+        let styleList = [];
         let workflows = {};
-        let currentStyle = null;
+        let currentStyleId = null;
         let currentTask = null;
+        let currentDayTask = null;
         let selectedFile = null;
+        let salesPlanExpanded = true;
+        let uploadType = 'completion'; // 'completion' 或 'keyword'
+        let editingStyleId = null;
+        
+        // 生成唯一ID
+        function generateId() {
+            return 'style_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
         
         // 初始化
         function init() {
             loadData();
+            if (styleList.length === 0) {
+                initDefaultStyles();
+            }
             renderStyleList();
+        }
+        
+        // 初始化默认款式
+        function initDefaultStyles() {
+            defaultStyleCodes.forEach((code, index) => {
+                const id = generateId();
+                styleList.push({
+                    id: id,
+                    code: code,
+                    shopName: '',
+                    productLink: '',
+                    productId: '',
+                    mainImage: '',
+                    order: index
+                });
+                initWorkflowForStyle(id);
+            });
+            saveData();
         }
         
         // 加载数据
         function loadData() {
-            const saved = localStorage.getItem('tmall_workflows');
-            if (saved) {
-                workflows = JSON.parse(saved);
+            const savedStyles = localStorage.getItem('tmall_style_list');
+            const savedWorkflows = localStorage.getItem('tmall_workflows');
+            
+            if (savedStyles) {
+                styleList = JSON.parse(savedStyles);
+            }
+            if (savedWorkflows) {
+                workflows = JSON.parse(savedWorkflows);
             }
         }
         
         // 保存数据
         function saveData() {
+            localStorage.setItem('tmall_style_list', JSON.stringify(styleList));
             localStorage.setItem('tmall_workflows', JSON.stringify(workflows));
         }
         
-        // 获取款式工作流
-        function getStyleWorkflow(styleName) {
-            if (!workflows[styleName]) {
-                workflows[styleName] = {};
+        // 为款式初始化工作流
+        function initWorkflowForStyle(styleId) {
+            if (!workflows[styleId]) {
+                workflows[styleId] = {};
+                
+                // 普通任务
                 taskTemplate.forEach(task => {
-                    workflows[styleName][task.id] = {
+                    workflows[styleId][task.id] = {
                         ...task,
                         status: 'pending',
                         screenshot: null,
-                        completedAt: null
+                        completedAt: null,
+                        claimedAt: null
                     };
                 });
+                
+                // 销量计划 - 7天子任务
+                workflows[styleId].sales_plan = {
+                    id: 'sales_plan',
+                    name: '销量计划',
+                    responsible: '灵活调整',
+                    expanded: true,
+                    days: {}
+                };
+                
+                for (let i = 1; i <= 7; i++) {
+                    workflows[styleId].sales_plan.days[`day${i}`] = {
+                        day: i,
+                        keywordUploaded: false,
+                        keywordUploadedAt: null,
+                        keywordScreenshot: null,
+                        claimed: false,
+                        claimedAt: null,
+                        completed: false,
+                        completedAt: null,
+                        screenshot: null
+                    };
+                }
             }
-            return workflows[styleName];
+        }
+        
+        // 获取款式工作流
+        function getStyleWorkflow(styleId) {
+            if (!workflows[styleId]) {
+                initWorkflowForStyle(styleId);
+            }
+            return workflows[styleId];
+        }
+        
+        // 计算销量计划完成的天数
+        function getSalesPlanCompletedDays(workflow) {
+            if (!workflow.sales_plan || !workflow.sales_plan.days) return 0;
+            return Object.values(workflow.sales_plan.days).filter(d => d.completed).length;
+        }
+        
+        // 计算总任务数（包括销量计划的7天）
+        function getTotalTaskCount() {
+            return taskTemplate.length + 7; // 8个普通任务 + 7天销量计划
+        }
+        
+        // 计算已完成任务数
+        function getCompletedTaskCount(workflow) {
+            let count = 0;
+            taskTemplate.forEach(task => {
+                if (workflow[task.id] && workflow[task.id].status === 'completed') {
+                    count++;
+                }
+            });
+            // 加上销量计划完成的天数
+            count += getSalesPlanCompletedDays(workflow);
+            return count;
+        }
+        
+        // 解析商品链接
+        function parseProductLink() {
+            const link = document.getElementById('productLinkInput').value.trim();
+            const hint = document.getElementById('parseHint');
+            const productIdInput = document.getElementById('productIdInput');
+            
+            if (!link) {
+                hint.textContent = '';
+                productIdInput.value = '';
+                return;
+            }
+            
+            // 淘宝/天猫链接格式解析
+            let productId = null;
+            
+            // 格式1: ?id=12345678
+            const match1 = link.match(/[?&]id=(\d+)/);
+            if (match1) {
+                productId = match1[1];
+            }
+            
+            // 格式2: /item/12345678
+            if (!productId) {
+                const match2 = link.match(/\/item\/(\d+)/);
+                if (match2) {
+                    productId = match2[1];
+                }
+            }
+            
+            // 格式3: 纯数字ID
+            if (!productId && /^\d+$/.test(link)) {
+                productId = link;
+            }
+            
+            if (productId) {
+                productIdInput.value = productId;
+                hint.textContent = '✓ 链接解析成功';
+                hint.style.color = '#10b981';
+                
+                // 尝试构建淘宝图片URL（如果用户后续上传主图，这个提示就没用了）
+                // 淘宝主图格式通常是 img.alicdn.com/imgextra/i1/xxx.jpg 等
+                // 由于跨域限制，无法自动获取，这里只是提示用户可以手动上传
+            } else {
+                hint.textContent = '无法识别链接格式，请手动输入商品ID';
+                hint.style.color = '#f59e0b';
+                productIdInput.value = '';
+            }
+        }
+        
+        // 处理主图上传
+        function handleMainImageSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('mainImagePreview').src = e.target.result;
+                document.getElementById('mainImagePreview').style.display = 'block';
+                document.getElementById('mainImagePlaceholder').style.display = 'none';
+                document.getElementById('mainImageZone').classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 打开添加款式对话框
+        function openAddStyleModal() {
+            editingStyleId = null;
+            document.getElementById('styleModalTitle').textContent = '添加款式';
+            document.getElementById('styleModalSubtitle').textContent = '粘贴商品链接自动解析';
+            document.getElementById('saveStyleBtn').textContent = '确认添加';
+            document.getElementById('saveStyleBtn').onclick = saveStyle;
+            
+            // 清空表单
+            document.getElementById('productLinkInput').value = '';
+            document.getElementById('productIdInput').value = '';
+            document.getElementById('styleCodeInput').value = '';
+            document.getElementById('shopNameInput').value = '';
+            document.getElementById('mainImagePreview').style.display = 'none';
+            document.getElementById('mainImagePlaceholder').style.display = 'block';
+            document.getElementById('mainImageZone').classList.remove('has-image');
+            document.getElementById('parseHint').textContent = '';
+            
+            document.getElementById('styleModal').classList.add('show');
+        }
+        
+        // 打开编辑款式对话框
+        function openEditStyleModal(styleId) {
+            event.stopPropagation();
+            
+            const style = styleList.find(s => s.id === styleId);
+            if (!style) return;
+            
+            editingStyleId = styleId;
+            document.getElementById('styleModalTitle').textContent = '编辑款式';
+            document.getElementById('styleModalSubtitle').textContent = '';
+            document.getElementById('saveStyleBtn').textContent = '保存修改';
+            document.getElementById('saveStyleBtn').onclick = saveStyle;
+            
+            // 填充表单
+            document.getElementById('productLinkInput').value = style.productLink || '';
+            document.getElementById('productIdInput').value = style.productId || '';
+            document.getElementById('styleCodeInput').value = style.code || '';
+            document.getElementById('shopNameInput').value = style.shopName || '';
+            
+            if (style.mainImage) {
+                document.getElementById('mainImagePreview').src = style.mainImage;
+                document.getElementById('mainImagePreview').style.display = 'block';
+                document.getElementById('mainImagePlaceholder').style.display = 'none';
+                document.getElementById('mainImageZone').classList.add('has-image');
+            } else {
+                document.getElementById('mainImagePreview').style.display = 'none';
+                document.getElementById('mainImagePlaceholder').style.display = 'block';
+                document.getElementById('mainImageZone').classList.remove('has-image');
+            }
+            
+            parseProductLink();
+            
+            document.getElementById('styleModal').classList.add('show');
+        }
+        
+        // 关闭款式对话框
+        function closeStyleModal() {
+            document.getElementById('styleModal').classList.remove('show');
+            editingStyleId = null;
+        }
+        
+        // 保存款式
+        function saveStyle() {
+            const code = document.getElementById('styleCodeInput').value.trim();
+            const shopName = document.getElementById('shopNameInput').value.trim();
+            const productLink = document.getElementById('productLinkInput').value.trim();
+            const productId = document.getElementById('productIdInput').value.trim();
+            const mainImage = document.getElementById('mainImagePreview').src || '';
+            
+            if (!code) {
+                showToast('请输入货号', 'error');
+                return;
+            }
+            
+            if (editingStyleId) {
+                // 编辑现有款式
+                const style = styleList.find(s => s.id === editingStyleId);
+                if (style) {
+                    style.code = code;
+                    style.shopName = shopName;
+                    style.productLink = productLink;
+                    style.productId = productId;
+                    style.mainImage = mainImage;
+                }
+                showToast('款式已保存');
+            } else {
+                // 添加新款式
+                const newStyle = {
+                    id: generateId(),
+                    code: code,
+                    shopName: shopName,
+                    productLink: productLink,
+                    productId: productId,
+                    mainImage: mainImage,
+                    order: styleList.length
+                };
+                styleList.push(newStyle);
+                initWorkflowForStyle(newStyle.id);
+                showToast('款式已添加');
+            }
+            
+            saveData();
+            renderStyleList();
+            closeStyleModal();
+            
+            // 如果当前正在编辑这个款式，更新显示
+            if (editingStyleId && currentStyleId === editingStyleId) {
+                renderTasks();
+            }
         }
         
         // 渲染款式列表
@@ -657,22 +1356,52 @@
             const container = document.getElementById('styleList');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             
-            const filtered = styles.filter(s => s.toLowerCase().includes(searchTerm));
+            // 按order排序
+            const sortedStyles = [...styleList].sort((a, b) => a.order - b.order);
             
-            container.innerHTML = filtered.map(styleName => {
-                const workflow = getStyleWorkflow(styleName);
-                const completed = Object.values(workflow).filter(t => t.status === 'completed').length;
-                const total = taskTemplate.length;
+            const filtered = sortedStyles.filter(s => 
+                s.code.toLowerCase().includes(searchTerm) || 
+                (s.shopName && s.shopName.toLowerCase().includes(searchTerm))
+            );
+            
+            container.innerHTML = filtered.map(style => {
+                const workflow = getStyleWorkflow(style.id);
+                const completed = getCompletedTaskCount(workflow);
+                const total = getTotalTaskCount();
                 const progress = Math.round((completed / total) * 100);
                 
+                const thumbHtml = style.mainImage 
+                    ? `<img class="style-thumb" src="${style.mainImage}" alt="${style.code}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                       <div class="style-thumb-placeholder" style="display:none;">📦</div>`
+                    : `<div class="style-thumb-placeholder">📦</div>`;
+                
+                const shopHtml = style.shopName 
+                    ? `<div class="style-shop">${style.shopName}</div>`
+                    : '';
+                
                 return `
-                    <div class="style-item ${currentStyle === styleName ? 'active' : ''}" onclick="selectStyle('${styleName}')">
-                        <div class="style-item-header">
-                            <span class="style-name">${styleName}</span>
-                            <span class="style-progress">${completed}/${total}</span>
-                        </div>
-                        <div class="style-progress-bar">
-                            <div class="style-progress-fill" style="width: ${progress}%"></div>
+                    <div class="style-item ${currentStyleId === style.id ? 'active' : ''}" 
+                         data-id="${style.id}"
+                         draggable="true"
+                         ondragstart="handleDragStart(event)"
+                         ondragend="handleDragEnd(event)"
+                         ondragover="handleDragOver(event)"
+                         ondrop="handleDrop(event)"
+                         onclick="selectStyle('${style.id}')">
+                        <div class="drag-handle" title="拖拽排序">☰</div>
+                        ${thumbHtml}
+                        <div class="style-info">
+                            <div class="style-item-header">
+                                <span class="style-code">${style.code}</span>
+                                <button class="style-edit-btn" onclick="openEditStyleModal('${style.id}')">编辑</button>
+                            </div>
+                            ${shopHtml}
+                            <div class="style-progress-bar">
+                                <div class="style-progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                                <span class="style-progress">${completed}/${total}</span>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -684,9 +1413,72 @@
             renderStyleList();
         }
         
+        // 拖拽排序 - 开始
+        let draggedElement = null;
+        
+        function handleDragStart(event) {
+            draggedElement = event.target;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', event.target.dataset.id);
+        }
+        
+        function handleDragEnd(event) {
+            event.target.classList.remove('dragging');
+            document.querySelectorAll('.style-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            const item = event.target.closest('.style-item');
+            if (item && item !== draggedElement) {
+                item.classList.add('drag-over');
+            }
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            const targetItem = event.target.closest('.style-item');
+            if (!targetItem || targetItem === draggedElement) return;
+            
+            const draggedId = draggedElement.dataset.id;
+            const targetId = targetItem.dataset.id;
+            
+            // 找到两个元素的位置
+            const draggedIndex = styleList.findIndex(s => s.id === draggedId);
+            const targetIndex = styleList.findIndex(s => s.id === targetId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            // 交换order值
+            const draggedOrder = styleList[draggedIndex].order;
+            const targetOrder = styleList[targetIndex].order;
+            
+            // 如果拖拽到目标前面，order值互换后需要调整中间的
+            if (draggedIndex < targetIndex) {
+                for (let i = draggedIndex + 1; i <= targetIndex; i++) {
+                    styleList[i].order = styleList[i - 1].order;
+                }
+                styleList[draggedIndex].order = targetOrder;
+            } else {
+                for (let i = targetIndex; i < draggedIndex; i++) {
+                    styleList[i].order = styleList[i + 1].order;
+                }
+                styleList[draggedIndex].order = targetOrder;
+            }
+            
+            saveData();
+            renderStyleList();
+            showToast('排序已保存');
+        }
+        
         // 选择款式
-        function selectStyle(styleName) {
-            currentStyle = styleName;
+        function selectStyle(styleId) {
+            currentStyleId = styleId;
+            salesPlanExpanded = true;
             renderStyleList();
             renderTasks();
             
@@ -705,22 +1497,34 @@
         
         // 渲染任务
         function renderTasks() {
-            if (!currentStyle) return;
+            if (!currentStyleId) return;
             
-            const workflow = getStyleWorkflow(currentStyle);
+            const style = styleList.find(s => s.id === currentStyleId);
+            const workflow = getStyleWorkflow(currentStyleId);
             const container = document.getElementById('taskGrid');
             
             // 更新标题
-            document.getElementById('currentStyleName').textContent = `款式: ${currentStyle}`;
+            document.getElementById('currentStyleName').textContent = style ? `款式: ${style.code}` : '请选择款式';
+            
+            // 更新商品链接
+            const linkContainer = document.getElementById('productLink');
+            if (style && style.productLink) {
+                linkContainer.innerHTML = `<a href="${style.productLink}" target="_blank" title="${style.productLink}">${style.productLink.substring(0, 50)}${style.productLink.length > 50 ? '...' : ''}</a>`;
+            } else {
+                linkContainer.textContent = '';
+            }
             
             // 更新进度
-            const completed = Object.values(workflow).filter(t => t.status === 'completed').length;
-            const total = taskTemplate.length;
+            const completed = getCompletedTaskCount(workflow);
+            const total = getTotalTaskCount();
             document.getElementById('overallProgressFill').style.width = `${(completed/total)*100}%`;
             document.getElementById('overallProgressText').textContent = `${completed}/${total}`;
             
-            // 渲染任务卡片
-            container.innerHTML = taskTemplate.map(task => {
+            // 渲染销量计划（展开卡片）
+            let salesPlanHtml = renderSalesPlanCard(workflow);
+            
+            // 渲染普通任务卡片
+            let normalTasksHtml = taskTemplate.map(task => {
                 const taskData = workflow[task.id];
                 const isAvailable = checkTaskAvailable(task, workflow);
                 
@@ -741,9 +1545,15 @@
                 
                 let depHtml = '';
                 if (task.dependsOn) {
-                    const depTask = workflow[task.dependsOn];
-                    if (depTask && depTask.status !== 'completed') {
-                        depHtml = `<div class="task-dep">⚠️ 依赖: ${depTask.name} 未完成</div>`;
+                    const depData = workflow[task.dependsOn];
+                    if (depData) {
+                        const salesCompleted = getSalesPlanCompletedDays(workflow);
+                        const depTaskName = task.dependsOn === 'sales_plan' ? '销量计划' : depData.name;
+                        if (task.dependsOn === 'sales_plan' && salesCompleted < 7) {
+                            depHtml = `<div class="task-dep">⚠️ 依赖: ${depTaskName} 未完成 (${salesCompleted}/7天)</div>`;
+                        } else if (task.dependsOn !== 'sales_plan' && depData.status !== 'completed') {
+                            depHtml = `<div class="task-dep">⚠️ 依赖: ${depTaskName} 未完成</div>`;
+                        }
                     }
                 }
                 
@@ -756,16 +1566,19 @@
                     `;
                 }
                 
-                let completedTimeHtml = '';
+                let timeInfoHtml = '';
+                if (taskData.claimedAt) {
+                    timeInfoHtml += `<div class="task-time-info"><span class="claimed">领取时间: ${taskData.claimedAt}</span></div>`;
+                }
                 if (taskData.completedAt) {
-                    completedTimeHtml = `<div class="task-completed-time">✓ 完成于: ${taskData.completedAt}</div>`;
+                    timeInfoHtml += `<div class="task-completed-time">✓ 完成时间: ${taskData.completedAt}</div>`;
                 }
                 
                 let buttonsHtml = '';
                 if (taskData.status === 'pending' && isAvailable) {
                     buttonsHtml = `<button class="task-btn start" onclick="startTask('${task.id}')">开始执行</button>`;
                 } else if (taskData.status === 'in-progress') {
-                    buttonsHtml = `<button class="task-btn complete" onclick="openUploadModal('${task.id}')">上传截图完成</button>`;
+                    buttonsHtml = `<button class="task-btn complete" onclick="openUploadModal('${task.id}', 'completion')">上传截图完成</button>`;
                 } else if (taskData.status === 'completed') {
                     buttonsHtml = `<button class="task-btn undo" onclick="undoTask('${task.id}')">撤销</button>`;
                 } else {
@@ -783,16 +1596,168 @@
                         </div>
                         ${depHtml}
                         ${screenshotHtml}
-                        ${completedTimeHtml}
+                        ${timeInfoHtml}
                         <div class="task-actions">${buttonsHtml}</div>
                     </div>
                 `;
             }).join('');
+            
+            container.innerHTML = salesPlanHtml + normalTasksHtml;
+        }
+        
+        // 渲染销量计划卡片
+        function renderSalesPlanCard(workflow) {
+            const salesPlan = workflow.sales_plan;
+            const completedDays = getSalesPlanCompletedDays(workflow);
+            
+            let daysHtml = '';
+            for (let i = 1; i <= 7; i++) {
+                daysHtml += renderDayCard(salesPlan.days[`day${i}`], i);
+            }
+            
+            return `
+                <div class="sales-plan-card">
+                    <div class="sales-plan-header" onclick="toggleSalesPlan()">
+                        <div>
+                            <div class="sales-plan-title">📋 销量计划</div>
+                            <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">负责人: 灵活调整</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="sales-plan-progress">${completedDays}/7天</span>
+                            <span class="sales-plan-toggle ${salesPlanExpanded ? 'expanded' : ''}">▼</span>
+                        </div>
+                    </div>
+                    <div class="sales-plan-body ${salesPlanExpanded ? 'show' : ''}" id="salesPlanBody">
+                        <div class="sales-days-grid">
+                            ${daysHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 渲染每日任务卡片
+        function renderDayCard(dayData, dayNum) {
+            let statusClass = '';
+            let statusText = '';
+            
+            if (dayData.completed) {
+                statusClass = 'completed';
+                statusText = '已完成';
+            } else if (dayData.claimed && !dayData.completed) {
+                statusClass = 'in-progress';
+                statusText = '进行中';
+            } else if (dayData.keywordUploaded) {
+                statusText = '待领取';
+            } else {
+                statusText = '待上传关键词';
+            }
+            
+            let timeInfoHtml = '';
+            if (dayData.claimedAt) {
+                timeInfoHtml += `<span class="claimed">领取时间: ${dayData.claimedAt}</span>`;
+            }
+            if (dayData.completedAt) {
+                timeInfoHtml += `<span style="color: #059669;">完成时间: ${dayData.completedAt}</span>`;
+            }
+            
+            let keywordStatusHtml = '';
+            if (dayData.keywordUploaded) {
+                keywordStatusHtml = `<div class="day-keyword-status">✓ 已上传关键词</div>`;
+            }
+            
+            let keywordScreenshotHtml = '';
+            if (dayData.keywordScreenshot) {
+                keywordScreenshotHtml = `
+                    <div class="day-screenshot">
+                        <img src="${dayData.keywordScreenshot}" onclick="openImagePreview('${dayData.keywordScreenshot}')" alt="关键词截图">
+                    </div>
+                `;
+            }
+            
+            let completionScreenshotHtml = '';
+            if (dayData.screenshot) {
+                completionScreenshotHtml = `
+                    <div class="day-screenshot">
+                        <img src="${dayData.screenshot}" onclick="openImagePreview('${dayData.screenshot}')" alt="完成截图">
+                    </div>
+                `;
+            }
+            
+            let actionsHtml = '';
+            
+            // 老司机上传关键词
+            if (!dayData.keywordUploaded) {
+                actionsHtml += `<button class="day-btn keyword" onclick="openUploadModal('day${dayNum}', 'keyword')">上传关键词截图</button>`;
+            }
+            
+            // 鑫垭领取任务
+            if (dayData.keywordUploaded && !dayData.claimed) {
+                actionsHtml += `<button class="day-btn claim" onclick="claimDayTask(${dayNum})">领取任务</button>`;
+            }
+            
+            // 鑫垭上传完成截图
+            if (dayData.claimed && !dayData.completed) {
+                actionsHtml += `<button class="day-btn complete" onclick="openUploadModal('day${dayNum}', 'completion')">上传完成截图</button>`;
+            }
+            
+            // 已完成显示
+            if (dayData.completed) {
+                actionsHtml += `<button class="day-btn claimed" disabled>✓ 已完成</button>`;
+            }
+            
+            return `
+                <div class="day-card ${statusClass}">
+                    <div class="day-header">
+                        <span class="day-title">第${dayNum}天</span>
+                        <span class="day-status ${statusText === '已完成' ? 'completed' : statusText === '待领取' ? 'waiting-claim' : statusText === '进行中' ? 'in-progress' : statusText === '待上传关键词' ? 'waiting-keyword' : 'pending'}">${statusText}</span>
+                    </div>
+                    ${timeInfoHtml ? `<div class="day-time-info">${timeInfoHtml}</div>` : ''}
+                    ${keywordStatusHtml}
+                    ${keywordScreenshotHtml}
+                    ${completionScreenshotHtml}
+                    <div class="day-actions">${actionsHtml}</div>
+                </div>
+            `;
+        }
+        
+        // 切换销量计划展开/收起
+        function toggleSalesPlan() {
+            salesPlanExpanded = !salesPlanExpanded;
+            const body = document.getElementById('salesPlanBody');
+            const toggle = document.querySelector('.sales-plan-toggle');
+            if (body) {
+                body.classList.toggle('show', salesPlanExpanded);
+            }
+            if (toggle) {
+                toggle.classList.toggle('expanded', salesPlanExpanded);
+            }
+        }
+        
+        // 领取每日任务
+        function claimDayTask(dayNum) {
+            if (!currentStyleId) return;
+            
+            const workflow = getStyleWorkflow(currentStyleId);
+            const dayKey = `day${dayNum}`;
+            
+            workflow.sales_plan.days[dayKey].claimed = true;
+            workflow.sales_plan.days[dayKey].claimedAt = new Date().toLocaleString('zh-CN');
+            
+            saveData();
+            renderTasks();
+            renderStyleList();
+            showToast(`第${dayNum}天任务已领取`);
         }
         
         // 检查任务是否可用
         function checkTaskAvailable(task, workflow) {
             if (!task.dependsOn) return true;
+            
+            if (task.dependsOn === 'sales_plan') {
+                const completed = getSalesPlanCompletedDays(workflow);
+                return completed >= 7;
+            }
             
             const depTask = workflow[task.dependsOn];
             if (!depTask || depTask.status !== 'completed') return false;
@@ -810,10 +1775,11 @@
         
         // 开始任务
         function startTask(taskId) {
-            if (!currentStyle) return;
+            if (!currentStyleId) return;
             
-            const workflow = getStyleWorkflow(currentStyle);
+            const workflow = getStyleWorkflow(currentStyleId);
             workflow[taskId].status = 'in-progress';
+            workflow[taskId].claimedAt = new Date().toLocaleString('zh-CN');
             saveData();
             renderTasks();
             renderStyleList();
@@ -821,13 +1787,34 @@
         }
         
         // 打开上传对话框
-        function openUploadModal(taskId) {
-            if (!currentStyle) return;
+        function openUploadModal(taskId, type) {
+            if (!currentStyleId) return;
             
-            const workflow = getStyleWorkflow(currentStyle);
-            currentTask = workflow[taskId];
+            const workflow = getStyleWorkflow(currentStyleId);
+            uploadType = type;
             
-            document.getElementById('uploadTaskName').textContent = currentTask.name;
+            if (taskId.startsWith('day')) {
+                // 销量计划子任务
+                const dayKey = taskId;
+                const dayNum = parseInt(taskId.replace('day', ''));
+                currentDayTask = workflow.sales_plan.days[dayKey];
+                currentDayTask._dayNum = dayNum;
+                
+                if (type === 'keyword') {
+                    document.getElementById('uploadModalTitle').textContent = '上传关键词截图';
+                    document.getElementById('uploadTaskName').textContent = `第${dayNum}天 - 老司机上传关键词`;
+                } else {
+                    document.getElementById('uploadModalTitle').textContent = '上传完成截图';
+                    document.getElementById('uploadTaskName').textContent = `第${dayNum}天 - 鑫垭完成任务`;
+                }
+            } else {
+                // 普通任务
+                currentTask = workflow[taskId];
+                currentDayTask = null;
+                document.getElementById('uploadModalTitle').textContent = '上传完成截图';
+                document.getElementById('uploadTaskName').textContent = currentTask.name;
+            }
+            
             document.getElementById('uploadPreview').style.display = 'none';
             document.getElementById('uploadPlaceholder').style.display = 'block';
             document.getElementById('confirmBtn').disabled = true;
@@ -840,7 +1827,9 @@
         function closeUploadModal() {
             document.getElementById('uploadModal').classList.remove('show');
             currentTask = null;
+            currentDayTask = null;
             selectedFile = null;
+            uploadType = 'completion';
         }
         
         // 选择文件
@@ -861,39 +1850,60 @@
         
         // 确认上传
         function confirmUpload() {
-            if (!currentTask || !selectedFile || !currentStyle) return;
+            if (!selectedFile || !currentStyleId) return;
             
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentTask.screenshot = e.target.result;
-                currentTask.status = 'completed';
-                currentTask.completedAt = new Date().toLocaleString('zh-CN');
+                const imageData = e.target.result;
+                
+                if (currentDayTask) {
+                    // 销量计划子任务
+                    const dayNum = currentDayTask._dayNum;
+                    
+                    if (uploadType === 'keyword') {
+                        currentDayTask.keywordScreenshot = imageData;
+                        currentDayTask.keywordUploaded = true;
+                        currentDayTask.keywordUploadedAt = new Date().toLocaleString('zh-CN');
+                        showToast(`第${dayNum}天关键词已上传`);
+                    } else {
+                        currentDayTask.screenshot = imageData;
+                        currentDayTask.completed = true;
+                        currentDayTask.completedAt = new Date().toLocaleString('zh-CN');
+                        showToast(`第${dayNum}天任务完成！`);
+                    }
+                } else if (currentTask) {
+                    // 普通任务
+                    currentTask.screenshot = imageData;
+                    currentTask.status = 'completed';
+                    currentTask.completedAt = new Date().toLocaleString('zh-CN');
+                    showToast('任务完成！');
+                    
+                    // 通知主对话发送邮件
+                    console.log('任务完成，需要发送邮件:', {
+                        styleId: currentStyleId,
+                        task: currentTask.name,
+                        responsible: currentTask.responsible,
+                        email: currentTask.email
+                    });
+                }
                 
                 saveData();
                 renderTasks();
                 renderStyleList();
                 closeUploadModal();
-                showToast('任务完成！');
-                
-                // 通知主对话发送邮件
-                console.log('任务完成，需要发送邮件:', {
-                    style: currentStyle,
-                    task: currentTask.name,
-                    responsible: currentTask.responsible,
-                    email: currentTask.email
-                });
             };
             reader.readAsDataURL(selectedFile);
         }
         
         // 撤销任务
         function undoTask(taskId) {
-            if (!currentStyle) return;
+            if (!currentStyleId) return;
             
-            const workflow = getStyleWorkflow(currentStyle);
+            const workflow = getStyleWorkflow(currentStyleId);
             workflow[taskId].status = 'pending';
             workflow[taskId].screenshot = null;
             workflow[taskId].completedAt = null;
+            workflow[taskId].claimedAt = null;
             
             saveData();
             renderTasks();
