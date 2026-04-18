@@ -175,6 +175,46 @@
             text-overflow: ellipsis;
         }
         
+        .style-code-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+        
+        .style-code-row .style-code {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .style-product-id {
+            font-size: 11px;
+            color: #1890ff;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-id-btn {
+            padding: 1px 5px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #1890ff;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .copy-id-btn:hover {
+            background: #bae7ff;
+        }
+        
         .style-edit-btn {
             padding: 2px 8px;
             background: #f3f4f6;
@@ -502,8 +542,8 @@
         
         .sales-days-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
         }
         
         /* 每日任务卡片 */
@@ -600,6 +640,12 @@
             color: #059669;
         }
         
+        .day-btn.add-order {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px dashed #d1d5db;
+        }
+        
         .day-screenshot {
             margin-bottom: 8px;
         }
@@ -612,13 +658,199 @@
             cursor: pointer;
         }
         
-        .day-keyword-status {
-            font-size: 11px;
-            color: #7c3aed;
-            margin-bottom: 6px;
+        /* 订单卡片 */
+        .order-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .order-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .order-card.completed {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .order-card.in-progress {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .order-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .order-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .order-status {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .order-status.pending { background: #f3f4f6; color: #6b7280; }
+        .order-status.in-progress { background: #fef3c7; color: #d97706; }
+        .order-status.completed { background: #d1fae5; color: #059669; }
+        
+        /* 关键词显示 */
+        .keyword-container {
+            margin-bottom: 8px;
+        }
+        
+        .keyword-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        .keyword-toggle:hover {
+            background: #e5e7eb;
+        }
+        
+        .keyword-toggle .arrow {
+            transition: transform 0.2s;
+        }
+        
+        .keyword-toggle.expanded .arrow {
+            transform: rotate(180deg);
+        }
+        
+        .keyword-text {
+            display: none;
+            padding: 8px 10px;
+            background: #fafafa;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #333;
+            margin-top: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        
+        .keyword-text.show {
+            display: block;
+        }
+        
+        .keyword-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        
+        .copy-btn {
+            padding: 4px 10px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+        
+        /* 评价任务 */
+        .review-card {
+            background: #fef3c7;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px dashed #d97706;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .review-title {
+            font-weight: 600;
+            font-size: 12px;
+            color: #92400e;
+        }
+        
+        .review-status {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .review-status.pending { background: #f3f4f6; color: #6b7280; }
+        .review-status.in-progress { background: #fef3c7; color: #d97706; }
+        .review-status.completed { background: #d1fae5; color: #059669; }
+        
+        .review-time-info {
+            font-size: 10px;
+            color: #92400e;
+            margin-bottom: 6px;
+        }
+        
+        .review-screenshot {
+            margin-bottom: 6px;
+        }
+        
+        .review-screenshot img {
+            width: 100%;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .review-actions {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .review-btn {
+            flex: 1;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .review-btn.start {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .review-btn.complete {
+            background: #10b981;
+            color: white;
+        }
+        
+        .review-btn.done {
+            background: #d1fae5;
+            color: #059669;
         }
         
         /* 上传对话框 */
@@ -722,6 +954,128 @@
             font-size: 12px;
             color: #888;
             margin-top: 4px;
+        }
+        
+        /* 添加款式对话框新样式 */
+        .link-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .link-input-row input {
+            flex: 1;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .link-input-row input:focus {
+            border-color: #ff6b35;
+            outline: none;
+        }
+        
+        .parse-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff6b35, #f7c948);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .parse-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .parsed-info {
+            display: none;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 16px;
+        }
+        
+        .parsed-info.show {
+            display: block;
+        }
+        
+        .parsed-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 10px;
+        }
+        
+        .parsed-row label {
+            font-size: 13px;
+            color: #666;
+            min-width: 60px;
+        }
+        
+        .parsed-row input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .parsed-product-id {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .parsed-product-id span {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .copy-product-id-btn {
+            padding: 4px 10px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #1890ff;
+            cursor: pointer;
+        }
+        
+        .copy-product-id-btn:hover {
+            background: #bae7ff;
+        }
+        
+        .image-upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .image-upload-section input[type="file"] {
+            padding: 8px;
+            border: 1px dashed #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .image-or-text {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin: 4px 0;
+        }
+        
+        .main-image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-top: 8px;
         }
         
         .upload-zone {
@@ -888,6 +1242,10 @@
             .workflow-title .product-link {
                 display: none;
             }
+            
+            .link-input-row {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -948,42 +1306,72 @@
                 <button class="modal-close" onclick="closeStyleModal()">×</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>商品链接</label>
-                    <input type="text" id="productLinkInput" placeholder="粘贴淘宝/天猫商品链接" oninput="parseProductLink()">
-                    <div class="hint" id="parseHint"></div>
+                <!-- 链接输入区域 -->
+                <div class="link-input-row">
+                    <input type="text" id="productLinkInput" placeholder="粘贴淘宝/天猫商品链接" onkeypress="if(event.key==='Enter') parseLink()">
+                    <button class="parse-btn" onclick="parseLink()">解析链接</button>
                 </div>
                 
-                <div class="form-group">
-                    <label>商品ID</label>
-                    <input type="text" id="productIdInput" placeholder="自动解析或手动输入" readonly>
-                </div>
-                
-                <div class="form-group">
-                    <label>货号</label>
-                    <input type="text" id="styleCodeInput" placeholder="输入货号">
-                </div>
-                
-                <div class="form-group">
-                    <label>店铺名</label>
-                    <input type="text" id="shopNameInput" placeholder="输入店铺名">
-                </div>
-                
-                <div class="form-group">
-                    <label>主图</label>
-                    <div class="upload-zone" id="mainImageZone" onclick="document.getElementById('mainImageInput').click()">
-                        <input type="file" id="mainImageInput" accept="image/*" style="display:none" onchange="handleMainImageSelect(event)">
-                        <div id="mainImagePlaceholder">
-                            <div class="upload-icon">🖼️</div>
-                            <div class="upload-text">点击上传主图<br>或从链接自动获取</div>
+                <!-- 解析后显示的信息 -->
+                <div class="parsed-info" id="parsedInfo">
+                    <div class="parsed-row">
+                        <label>商品ID：</label>
+                        <div class="parsed-product-id">
+                            <span id="parsedProductId"></span>
+                            <button class="copy-product-id-btn" onclick="copyProductId()">复制</button>
                         </div>
-                        <img id="mainImagePreview" class="upload-preview" style="display:none">
+                    </div>
+                    
+                    <div class="parsed-row">
+                        <label>货号：</label>
+                        <input type="text" id="styleCodeInput" placeholder="手动输入货号">
+                    </div>
+                    
+                    <div class="parsed-row">
+                        <label>店铺名：</label>
+                        <input type="text" id="shopNameInput" placeholder="手动输入店铺名">
+                    </div>
+                    
+                    <div class="parsed-row" style="flex-direction: column; align-items: flex-start;">
+                        <label style="margin-bottom: 8px;">主图：</label>
+                        <div class="image-upload-section">
+                            <input type="file" id="mainImageInput" accept="image/*" onchange="handleMainImageSelect(event)">
+                            <div class="image-or-text">或</div>
+                            <input type="text" id="mainImageUrlInput" placeholder="粘贴主图URL" oninput="handleMainImageUrlInput()">
+                            <img id="mainImagePreview" class="main-image-preview" style="display:none">
+                        </div>
                     </div>
                 </div>
+                
+                <div class="hint" id="parseHint" style="margin-top: 12px;"></div>
             </div>
             <div class="modal-footer">
                 <button class="modal-btn cancel" onclick="closeStyleModal()">取消</button>
-                <button class="modal-btn confirm" id="saveStyleBtn" onclick="saveStyle()">确认添加</button>
+                <button class="modal-btn confirm" id="saveStyleBtn" onclick="saveStyle()" disabled>确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 关键词文本对话框 -->
+    <div class="modal" id="keywordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 id="keywordModalTitle">老司机上传关键词</h3>
+                    <p id="keywordTaskName"></p>
+                </div>
+                <button class="modal-close" onclick="closeKeywordModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>关键词文本</label>
+                    <textarea id="keywordTextInput" placeholder="请输入关键词文本，每行一个或用逗号分隔"></textarea>
+                    <div class="hint">输入完成后点击确认保存</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeKeywordModal()">取消</button>
+                <button class="modal-btn confirm" id="saveKeywordBtn" onclick="saveKeyword()">确认保存</button>
             </div>
         </div>
     </div>
@@ -1028,15 +1416,15 @@
         // 初始款式数据
         const defaultStyleCodes = ["2406","1901","2233X","2406W","2332","2330","2503","2505","2221N","2689","2685","2233BW","2503Q","087N","2406X","2407B","0087W","2233N","2409","2409B","2505Q","PDD_10","0087","2406Q","2511","2515B","3610B","001Y","0028","005R","0081B","028B","087B","1900","2002A","2009","2013","21051X","21057B","2201","2221","2221M","2233BN","2233Q","2236","2260A","2361","2369","24059","2411","24775B","2505B","2510","2515","2518","2525","3610","3612","5252","5555","775A","775X","BUFA","Z003"];
         
-        // 任务模板（销量计划移除，在这里单独处理）
+        // 任务模板（销量计划独立处理，评价任务合并到销量单中）
         const taskTemplate = [
             { id: 'main_image', name: '主图', responsible: '鑫垭', email: '386319800@qq.com' },
             { id: 'video', name: '视频', responsible: '王政', email: '386319800@qq.com' },
             { id: 'buyer_show', name: '买家秀模块', responsible: '鑫垭', email: '386319800@qq.com' },
             { id: 'qna', name: '问大家', responsible: '鑫垭', email: '386319800@qq.com' },
             { id: 'new_product', name: '新品运营中心素材补全', responsible: '鑫垭', email: '386319800@qq.com' },
-            { id: 'review', name: '评价', responsible: '鑫垭', email: '386319800@qq.com', dependsOn: 'sales_plan', delayDays: 3 },
-            { id: 'weitao', name: '微淘发布', responsible: '鑫垭', email: '386319800@qq.com', dependsOn: 'review' },
+            // 评价任务已移除，合并到销量单中
+            { id: 'weitao', name: '微淘发布', responsible: '鑫垭', email: '386319800@qq.com', dependsOn: 'review', delayDays: 3 },
             { id: 'short_video', name: '短视频', responsible: '王政', email: '386319800@qq.com' }
         ];
         
@@ -1045,11 +1433,13 @@
         let workflows = {};
         let currentStyleId = null;
         let currentTask = null;
-        let currentDayTask = null;
+        let currentDayNum = null;
+        let currentOrderId = null;
         let selectedFile = null;
         let salesPlanExpanded = true;
-        let uploadType = 'completion'; // 'completion' 或 'keyword'
+        let uploadType = 'completion'; // 'completion', 'review'
         let editingStyleId = null;
+        let parsedProductId = ''; // 解析后的商品ID
         
         // 生成唯一ID
         function generateId() {
@@ -1118,7 +1508,7 @@
                     };
                 });
                 
-                // 销量计划 - 7天子任务
+                // 销量计划 - 7天，每天可多个订单
                 workflows[styleId].sales_plan = {
                     id: 'sales_plan',
                     name: '销量计划',
@@ -1130,17 +1520,43 @@
                 for (let i = 1; i <= 7; i++) {
                     workflows[styleId].sales_plan.days[`day${i}`] = {
                         day: i,
-                        keywordUploaded: false,
-                        keywordUploadedAt: null,
-                        keywordScreenshot: null,
-                        claimed: false,
-                        claimedAt: null,
-                        completed: false,
-                        completedAt: null,
-                        screenshot: null
+                        orders: [
+                            // 默认创建1个订单
+                            createNewOrder(i, 1)
+                        ]
                     };
                 }
+                
+                // 添加独立的评价任务占位（用于微淘的依赖检查）
+                workflows[styleId].review = {
+                    id: 'review',
+                    name: '评价',
+                    responsible: '鑫垭',
+                    status: 'pending',
+                    completedAt: null
+                };
             }
+        }
+        
+        // 创建新订单
+        function createNewOrder(dayNum, orderNum) {
+            return {
+                id: `day${dayNum}_order${orderNum}`,
+                keywords: '',
+                keywordUploadedAt: null,
+                claimed: false,
+                claimedAt: null,
+                completed: false,
+                completedAt: null,
+                screenshot: null,
+                review: {
+                    claimed: false,
+                    claimedAt: null,
+                    completed: false,
+                    completedAt: null,
+                    screenshot: null
+                }
+            };
         }
         
         // 获取款式工作流
@@ -1154,12 +1570,36 @@
         // 计算销量计划完成的天数
         function getSalesPlanCompletedDays(workflow) {
             if (!workflow.sales_plan || !workflow.sales_plan.days) return 0;
-            return Object.values(workflow.sales_plan.days).filter(d => d.completed).length;
+            let completedOrders = 0;
+            let totalOrders = 0;
+            Object.values(workflow.sales_plan.days).forEach(day => {
+                day.orders.forEach(order => {
+                    totalOrders++;
+                    if (order.completed) completedOrders++;
+                });
+            });
+            // 按比例计算完成天数
+            return totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 7) : 0;
         }
         
-        // 计算总任务数（包括销量计划的7天）
+        // 计算所有订单完成数
+        function getSalesPlanCompletedOrders(workflow) {
+            if (!workflow.sales_plan || !workflow.sales_plan.days) return { completed: 0, total: 0 };
+            let completedOrders = 0;
+            let totalOrders = 0;
+            Object.values(workflow.sales_plan.days).forEach(day => {
+                day.orders.forEach(order => {
+                    totalOrders++;
+                    if (order.completed && order.review.completed) completedOrders++;
+                    else if (order.completed) completedOrders += 0.5; // 销量完成但评价未完成
+                });
+            });
+            return { completed: Math.round(completedOrders), total: totalOrders };
+        }
+        
+        // 计算总任务数（包括销量计划的订单数）
         function getTotalTaskCount() {
-            return taskTemplate.length + 7; // 8个普通任务 + 7天销量计划
+            return taskTemplate.length + 7; // 7个普通任务 + 7天（每天按1个订单计算）
         }
         
         // 计算已完成任务数
@@ -1170,20 +1610,20 @@
                     count++;
                 }
             });
-            // 加上销量计划完成的天数
-            count += getSalesPlanCompletedDays(workflow);
+            // 加上销量计划完成的订单数（按比例）
+            const salesData = getSalesPlanCompletedOrders(workflow);
+            count += salesData.completed;
             return count;
         }
         
         // 解析商品链接
-        function parseProductLink() {
+        function parseLink() {
             const link = document.getElementById('productLinkInput').value.trim();
             const hint = document.getElementById('parseHint');
-            const productIdInput = document.getElementById('productIdInput');
             
             if (!link) {
-                hint.textContent = '';
-                productIdInput.value = '';
+                hint.textContent = '请输入商品链接';
+                hint.style.color = '#f59e0b';
                 return;
             }
             
@@ -1210,17 +1650,51 @@
             }
             
             if (productId) {
-                productIdInput.value = productId;
-                hint.textContent = '✓ 链接解析成功';
+                parsedProductId = productId;
+                document.getElementById('parsedProductId').textContent = productId;
+                document.getElementById('parsedInfo').classList.add('show');
+                document.getElementById('saveStyleBtn').disabled = false;
+                hint.textContent = '✓ 链接解析成功，请完善信息后保存';
                 hint.style.color = '#10b981';
                 
-                // 尝试构建淘宝图片URL（如果用户后续上传主图，这个提示就没用了）
-                // 淘宝主图格式通常是 img.alicdn.com/imgextra/i1/xxx.jpg 等
-                // 由于跨域限制，无法自动获取，这里只是提示用户可以手动上传
+                // 尝试获取主图URL
+                tryFetchMainImage(productId);
             } else {
+                document.getElementById('parsedInfo').classList.remove('show');
+                document.getElementById('saveStyleBtn').disabled = true;
                 hint.textContent = '无法识别链接格式，请手动输入商品ID';
                 hint.style.color = '#f59e0b';
-                productIdInput.value = '';
+                parsedProductId = '';
+            }
+        }
+        
+        // 尝试获取主图
+        function tryFetchMainImage(productId) {
+            // 淘宝主图CDN格式尝试
+            const possibleUrls = [
+                `https://img.alicdn.com/imgextra/i1/${productId}/1.jpg`,
+                `https://gw.alicdn.com/bao/uploaded/i1/${productId}/1.jpg`,
+                `https://img.alicdn.com/bao/uploaded/i1/${productId}/1.jpg`
+            ];
+            
+            // 由于跨域限制，我们只能将URL填充到输入框让用户选择
+            // 这里不直接设置src，因为可能加载失败
+            document.getElementById('mainImageUrlInput').placeholder = '粘贴主图URL或上传图片';
+        }
+        
+        // 处理主图URL输入
+        function handleMainImageUrlInput() {
+            const url = document.getElementById('mainImageUrlInput').value.trim();
+            const preview = document.getElementById('mainImagePreview');
+            
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    this.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
             }
         }
         
@@ -1231,30 +1705,70 @@
             
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('mainImagePreview').src = e.target.result;
-                document.getElementById('mainImagePreview').style.display = 'block';
-                document.getElementById('mainImagePlaceholder').style.display = 'none';
-                document.getElementById('mainImageZone').classList.add('has-image');
+                const preview = document.getElementById('mainImagePreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                // 清空URL输入
+                document.getElementById('mainImageUrlInput').value = '';
             };
             reader.readAsDataURL(file);
+        }
+        
+        // 复制商品ID
+        function copyProductId() {
+            const productId = document.getElementById('parsedProductId').textContent;
+            if (productId) {
+                navigator.clipboard.writeText(productId).then(() => {
+                    showToast('商品ID已复制');
+                }).catch(() => {
+                    // fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = productId;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showToast('商品ID已复制');
+                });
+            }
+        }
+        
+        // 复制款式商品ID（从列表卡片）
+        function copyStyleProductId(productId, event) {
+            event.stopPropagation();
+            if (productId) {
+                navigator.clipboard.writeText(productId).then(() => {
+                    showToast('商品ID已复制');
+                }).catch(() => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = productId;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showToast('商品ID已复制');
+                });
+            }
         }
         
         // 打开添加款式对话框
         function openAddStyleModal() {
             editingStyleId = null;
+            parsedProductId = '';
             document.getElementById('styleModalTitle').textContent = '添加款式';
             document.getElementById('styleModalSubtitle').textContent = '粘贴商品链接自动解析';
             document.getElementById('saveStyleBtn').textContent = '确认添加';
             document.getElementById('saveStyleBtn').onclick = saveStyle;
+            document.getElementById('saveStyleBtn').disabled = true;
             
             // 清空表单
             document.getElementById('productLinkInput').value = '';
-            document.getElementById('productIdInput').value = '';
             document.getElementById('styleCodeInput').value = '';
             document.getElementById('shopNameInput').value = '';
+            document.getElementById('mainImageInput').value = '';
+            document.getElementById('mainImageUrlInput').value = '';
             document.getElementById('mainImagePreview').style.display = 'none';
-            document.getElementById('mainImagePlaceholder').style.display = 'block';
-            document.getElementById('mainImageZone').classList.remove('has-image');
+            document.getElementById('parsedInfo').classList.remove('show');
             document.getElementById('parseHint').textContent = '';
             
             document.getElementById('styleModal').classList.add('show');
@@ -1268,29 +1782,35 @@
             if (!style) return;
             
             editingStyleId = styleId;
+            parsedProductId = style.productId || '';
             document.getElementById('styleModalTitle').textContent = '编辑款式';
             document.getElementById('styleModalSubtitle').textContent = '';
             document.getElementById('saveStyleBtn').textContent = '保存修改';
             document.getElementById('saveStyleBtn').onclick = saveStyle;
+            document.getElementById('saveStyleBtn').disabled = false;
             
             // 填充表单
             document.getElementById('productLinkInput').value = style.productLink || '';
-            document.getElementById('productIdInput').value = style.productId || '';
             document.getElementById('styleCodeInput').value = style.code || '';
             document.getElementById('shopNameInput').value = style.shopName || '';
+            document.getElementById('mainImageUrlInput').value = '';
             
-            if (style.mainImage) {
-                document.getElementById('mainImagePreview').src = style.mainImage;
-                document.getElementById('mainImagePreview').style.display = 'block';
-                document.getElementById('mainImagePlaceholder').style.display = 'none';
-                document.getElementById('mainImageZone').classList.add('has-image');
+            // 显示解析后的信息
+            if (style.productId) {
+                document.getElementById('parsedProductId').textContent = style.productId;
+                document.getElementById('parsedInfo').classList.add('show');
             } else {
-                document.getElementById('mainImagePreview').style.display = 'none';
-                document.getElementById('mainImagePlaceholder').style.display = 'block';
-                document.getElementById('mainImageZone').classList.remove('has-image');
+                document.getElementById('parsedInfo').classList.remove('show');
             }
             
-            parseProductLink();
+            // 显示主图
+            if (style.mainImage) {
+                const preview = document.getElementById('mainImagePreview');
+                preview.src = style.mainImage;
+                preview.style.display = 'block';
+            } else {
+                document.getElementById('mainImagePreview').style.display = 'none';
+            }
             
             document.getElementById('styleModal').classList.add('show');
         }
@@ -1299,6 +1819,7 @@
         function closeStyleModal() {
             document.getElementById('styleModal').classList.remove('show');
             editingStyleId = null;
+            parsedProductId = '';
         }
         
         // 保存款式
@@ -1306,8 +1827,25 @@
             const code = document.getElementById('styleCodeInput').value.trim();
             const shopName = document.getElementById('shopNameInput').value.trim();
             const productLink = document.getElementById('productLinkInput').value.trim();
-            const productId = document.getElementById('productIdInput').value.trim();
-            const mainImage = document.getElementById('mainImagePreview').src || '';
+            
+            // 获取商品ID（优先用解析的，其次用编辑时的）
+            const productId = parsedProductId || (editingStyleId ? styleList.find(s => s.id === editingStyleId)?.productId : '') || '';
+            
+            // 获取主图（优先用上传的，其次用URL输入的）
+            let mainImage = '';
+            const uploadedImage = document.getElementById('mainImagePreview').src;
+            const urlImage = document.getElementById('mainImageUrlInput').value.trim();
+            
+            if (uploadedImage && !uploadedImage.startsWith('data:,') && !uploadedImage.includes('blob:')) {
+                // 如果是URL图片
+                mainImage = urlImage || uploadedImage;
+            } else if (uploadedImage && uploadedImage.startsWith('data:')) {
+                // 如果是上传的base64图片
+                mainImage = uploadedImage;
+            } else if (urlImage) {
+                // 只有URL图片
+                mainImage = urlImage;
+            }
             
             if (!code) {
                 showToast('请输入货号', 'error');
@@ -1361,7 +1899,8 @@
             
             const filtered = sortedStyles.filter(s => 
                 s.code.toLowerCase().includes(searchTerm) || 
-                (s.shopName && s.shopName.toLowerCase().includes(searchTerm))
+                (s.shopName && s.shopName.toLowerCase().includes(searchTerm)) ||
+                (s.productId && s.productId.toLowerCase().includes(searchTerm))
             );
             
             container.innerHTML = filtered.map(style => {
@@ -1377,6 +1916,13 @@
                 
                 const shopHtml = style.shopName 
                     ? `<div class="style-shop">${style.shopName}</div>`
+                    : '';
+                
+                const productIdHtml = style.productId 
+                    ? `<div class="style-product-id">
+                         ID: ${style.productId}
+                         <button class="copy-id-btn" onclick="copyStyleProductId('${style.productId}', event)">复制</button>
+                       </div>`
                     : '';
                 
                 return `
@@ -1395,6 +1941,7 @@
                                 <span class="style-code">${style.code}</span>
                                 <button class="style-edit-btn" onclick="openEditStyleModal('${style.id}')">编辑</button>
                             </div>
+                            ${productIdHtml}
                             ${shopHtml}
                             <div class="style-progress-bar">
                                 <div class="style-progress-fill" style="width: ${progress}%"></div>
@@ -1576,7 +2123,7 @@
                 
                 let buttonsHtml = '';
                 if (taskData.status === 'pending' && isAvailable) {
-                    buttonsHtml = `<button class="task-btn start" onclick="startTask('${task.id}')">开始执行</button>`;
+                    buttonsHtml = `<button class="task-btn start" onclick="startTask('${task.id}')">开干</button>`;
                 } else if (taskData.status === 'in-progress') {
                     buttonsHtml = `<button class="task-btn complete" onclick="openUploadModal('${task.id}', 'completion')">上传截图完成</button>`;
                 } else if (taskData.status === 'completed') {
@@ -1608,7 +2155,7 @@
         // 渲染销量计划卡片
         function renderSalesPlanCard(workflow) {
             const salesPlan = workflow.sales_plan;
-            const completedDays = getSalesPlanCompletedDays(workflow);
+            const salesData = getSalesPlanCompletedOrders(workflow);
             
             let daysHtml = '';
             for (let i = 1; i <= 7; i++) {
@@ -1623,7 +2170,7 @@
                             <div style="font-size: 12px; opacity: 0.8; margin-top: 2px;">负责人: 灵活调整</div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <span class="sales-plan-progress">${completedDays}/7天</span>
+                            <span class="sales-plan-progress">${salesData.completed}/${salesData.total}单</span>
                             <span class="sales-plan-toggle ${salesPlanExpanded ? 'expanded' : ''}">▼</span>
                         </div>
                     </div>
@@ -1638,87 +2185,205 @@
         
         // 渲染每日任务卡片
         function renderDayCard(dayData, dayNum) {
-            let statusClass = '';
-            let statusText = '';
+            // 计算天的状态
+            let dayStatusClass = '';
+            let allCompleted = dayData.orders.every(o => o.completed && o.review.completed);
+            let someInProgress = dayData.orders.some(o => (o.claimed || o.review.claimed) && !(o.completed && o.review.completed));
             
-            if (dayData.completed) {
-                statusClass = 'completed';
-                statusText = '已完成';
-            } else if (dayData.claimed && !dayData.completed) {
-                statusClass = 'in-progress';
-                statusText = '进行中';
-            } else if (dayData.keywordUploaded) {
-                statusText = '待领取';
+            if (allCompleted) {
+                dayStatusClass = 'completed';
+            } else if (someInProgress) {
+                dayStatusClass = 'in-progress';
+            }
+            
+            let ordersHtml = dayData.orders.map((order, orderIndex) => {
+                return renderOrderCard(order, dayNum, orderIndex + 1);
+            }).join('');
+            
+            return `
+                <div class="day-card ${dayStatusClass}">
+                    <div class="day-header">
+                        <span class="day-title">第${dayNum}天</span>
+                        <span class="day-status ${dayStatusClass === 'completed' ? 'completed' : dayStatusClass === 'in-progress' ? 'in-progress' : 'pending'}">
+                            ${allCompleted ? '全部完成' : someInProgress ? '进行中' : '待开始'}
+                        </span>
+                    </div>
+                    ${ordersHtml}
+                    <button class="day-btn add-order" onclick="addNewOrder(${dayNum})">+ 新增销量单</button>
+                </div>
+            `;
+        }
+        
+        // 渲染订单卡片
+        function renderOrderCard(order, dayNum, orderNum) {
+            let orderStatusClass = '';
+            let orderStatusText = '';
+            
+            if (order.completed && order.review.completed) {
+                orderStatusClass = 'completed';
+                orderStatusText = '已完成';
+            } else if (order.completed) {
+                orderStatusClass = 'completed';
+                orderStatusText = '销量完成';
+            } else if (order.claimed) {
+                orderStatusClass = 'in-progress';
+                orderStatusText = '进行中';
+            } else if (order.keywords) {
+                orderStatusText = '待领取';
             } else {
-                statusText = '待上传关键词';
+                orderStatusText = '待填关键词';
             }
             
-            let timeInfoHtml = '';
-            if (dayData.claimedAt) {
-                timeInfoHtml += `<span class="claimed">领取时间: ${dayData.claimedAt}</span>`;
-            }
-            if (dayData.completedAt) {
-                timeInfoHtml += `<span style="color: #059669;">完成时间: ${dayData.completedAt}</span>`;
-            }
-            
-            let keywordStatusHtml = '';
-            if (dayData.keywordUploaded) {
-                keywordStatusHtml = `<div class="day-keyword-status">✓ 已上传关键词</div>`;
-            }
-            
-            let keywordScreenshotHtml = '';
-            if (dayData.keywordScreenshot) {
-                keywordScreenshotHtml = `
-                    <div class="day-screenshot">
-                        <img src="${dayData.keywordScreenshot}" onclick="openImagePreview('${dayData.keywordScreenshot}')" alt="关键词截图">
+            // 关键词显示
+            let keywordHtml = '';
+            if (order.keywords) {
+                keywordHtml = `
+                    <div class="keyword-container">
+                        <div class="keyword-toggle" onclick="toggleKeyword(this)">
+                            <span>关键词 ${order.keywordUploadedAt ? '✓' : ''}</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="keyword-text">${order.keywords}</div>
+                        <div class="keyword-actions">
+                            <button class="copy-btn" onclick="copyKeywords('${order.id}')">复制</button>
+                        </div>
                     </div>
                 `;
             }
             
-            let completionScreenshotHtml = '';
-            if (dayData.screenshot) {
-                completionScreenshotHtml = `
+            // 完成截图
+            let screenshotHtml = '';
+            if (order.screenshot) {
+                screenshotHtml = `
                     <div class="day-screenshot">
-                        <img src="${dayData.screenshot}" onclick="openImagePreview('${dayData.screenshot}')" alt="完成截图">
+                        <img src="${order.screenshot}" onclick="openImagePreview('${order.screenshot}')" alt="完成截图">
+                    </div>
+                `;
+            }
+            
+            // 操作按钮
+            let actionsHtml = '';
+            
+            // 老司机填写关键词
+            if (!order.keywords) {
+                actionsHtml += `<button class="day-btn keyword" onclick="openKeywordModal(${dayNum}, '${order.id}')">老司机上传关键词</button>`;
+            }
+            
+            // 鑫垭领取任务
+            if (order.keywords && !order.claimed) {
+                actionsHtml += `<button class="day-btn claim" onclick="claimOrderTask(${dayNum}, '${order.id}')">开干</button>`;
+            }
+            
+            // 鑫垭上传完成截图
+            if (order.claimed && !order.completed) {
+                actionsHtml += `<button class="day-btn complete" onclick="openUploadModal('order_${dayNum}_${order.id}', 'completion')">上传完成截图</button>`;
+            }
+            
+            // 评价任务
+            let reviewHtml = renderReviewCard(order, dayNum, order.id);
+            
+            return `
+                <div class="order-card ${orderStatusClass}">
+                    <div class="order-header">
+                        <span class="order-title">第${dayNum}天-单${orderNum}</span>
+                        <span class="order-status ${orderStatusClass}">${orderStatusText}</span>
+                    </div>
+                    ${keywordHtml}
+                    ${screenshotHtml}
+                    <div class="day-actions">${actionsHtml}</div>
+                    ${reviewHtml}
+                </div>
+            `;
+        }
+        
+        // 渲染评价任务卡片
+        function renderReviewCard(order, dayNum, orderId) {
+            const review = order.review;
+            
+            let reviewStatusText = '';
+            if (review.completed) {
+                reviewStatusText = '已完成';
+            } else if (review.claimed) {
+                reviewStatusText = '进行中';
+            } else if (order.completed) {
+                reviewStatusText = '待领取';
+            } else {
+                reviewStatusText = '等待销量完成';
+            }
+            
+            let timeInfoHtml = '';
+            if (review.claimedAt) {
+                timeInfoHtml += `<div class="review-time-info">领取: ${review.claimedAt}</div>`;
+            }
+            if (review.completedAt) {
+                timeInfoHtml += `<div class="review-time-info">完成: ${review.completedAt}</div>`;
+            }
+            
+            let screenshotHtml = '';
+            if (review.screenshot) {
+                screenshotHtml = `
+                    <div class="review-screenshot">
+                        <img src="${review.screenshot}" onclick="openImagePreview('${review.screenshot}')" alt="评价截图">
                     </div>
                 `;
             }
             
             let actionsHtml = '';
-            
-            // 老司机上传关键词
-            if (!dayData.keywordUploaded) {
-                actionsHtml += `<button class="day-btn keyword" onclick="openUploadModal('day${dayNum}', 'keyword')">上传关键词截图</button>`;
+            if (order.completed && !review.completed) {
+                if (!review.claimed) {
+                    actionsHtml += `<button class="review-btn start" onclick="claimReviewTask(${dayNum}, '${orderId}')">开干</button>`;
+                } else if (review.claimed && !review.completed) {
+                    actionsHtml += `<button class="review-btn complete" onclick="openUploadModal('review_${dayNum}_${orderId}', 'review')">上传完成截图</button>`;
+                }
             }
-            
-            // 鑫垭领取任务
-            if (dayData.keywordUploaded && !dayData.claimed) {
-                actionsHtml += `<button class="day-btn claim" onclick="claimDayTask(${dayNum})">领取任务</button>`;
-            }
-            
-            // 鑫垭上传完成截图
-            if (dayData.claimed && !dayData.completed) {
-                actionsHtml += `<button class="day-btn complete" onclick="openUploadModal('day${dayNum}', 'completion')">上传完成截图</button>`;
-            }
-            
-            // 已完成显示
-            if (dayData.completed) {
-                actionsHtml += `<button class="day-btn claimed" disabled>✓ 已完成</button>`;
+            if (review.completed) {
+                actionsHtml += `<button class="review-btn done" disabled>✓ 已完成</button>`;
             }
             
             return `
-                <div class="day-card ${statusClass}">
-                    <div class="day-header">
-                        <span class="day-title">第${dayNum}天</span>
-                        <span class="day-status ${statusText === '已完成' ? 'completed' : statusText === '待领取' ? 'waiting-claim' : statusText === '进行中' ? 'in-progress' : statusText === '待上传关键词' ? 'waiting-keyword' : 'pending'}">${statusText}</span>
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="review-title">📝 评价任务（负责人：鑫垭）</span>
+                        <span class="review-status ${review.completed ? 'completed' : review.claimed ? 'in-progress' : 'pending'}">${reviewStatusText}</span>
                     </div>
-                    ${timeInfoHtml ? `<div class="day-time-info">${timeInfoHtml}</div>` : ''}
-                    ${keywordStatusHtml}
-                    ${keywordScreenshotHtml}
-                    ${completionScreenshotHtml}
-                    <div class="day-actions">${actionsHtml}</div>
+                    ${timeInfoHtml}
+                    ${screenshotHtml}
+                    <div class="review-actions">${actionsHtml}</div>
                 </div>
             `;
+        }
+        
+        // 切换关键词展开/收起
+        function toggleKeyword(element) {
+            element.classList.toggle('expanded');
+            const textDiv = element.nextElementSibling;
+            if (textDiv) {
+                textDiv.classList.toggle('show');
+            }
+        }
+        
+        // 复制关键词
+        function copyKeywords(orderId) {
+            if (!currentStyleId) return;
+            
+            const workflow = getStyleWorkflow(currentStyleId);
+            let keywords = '';
+            
+            // 找到对应的订单
+            Object.values(workflow.sales_plan.days).forEach(day => {
+                const order = day.orders.find(o => o.id === orderId);
+                if (order && order.keywords) {
+                    keywords = order.keywords;
+                }
+            });
+            
+            if (keywords) {
+                navigator.clipboard.writeText(keywords).then(() => {
+                    showToast('关键词已复制');
+                }).catch(() => {
+                    showToast('复制失败', 'error');
+                });
+            }
         }
         
         // 切换销量计划展开/收起
@@ -1734,20 +2399,58 @@
             }
         }
         
-        // 领取每日任务
-        function claimDayTask(dayNum) {
+        // 添加新订单
+        function addNewOrder(dayNum) {
             if (!currentStyleId) return;
             
             const workflow = getStyleWorkflow(currentStyleId);
             const dayKey = `day${dayNum}`;
+            const orderNum = workflow.sales_plan.days[dayKey].orders.length + 1;
             
-            workflow.sales_plan.days[dayKey].claimed = true;
-            workflow.sales_plan.days[dayKey].claimedAt = new Date().toLocaleString('zh-CN');
+            workflow.sales_plan.days[dayKey].orders.push(createNewOrder(dayNum, orderNum));
             
             saveData();
             renderTasks();
             renderStyleList();
-            showToast(`第${dayNum}天任务已领取`);
+            showToast(`第${dayNum}天已新增销量单${orderNum}`);
+        }
+        
+        // 领取订单任务
+        function claimOrderTask(dayNum, orderId) {
+            if (!currentStyleId) return;
+            
+            const workflow = getStyleWorkflow(currentStyleId);
+            const dayKey = `day${dayNum}`;
+            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === orderId);
+            
+            if (order) {
+                order.claimed = true;
+                order.claimedAt = new Date().toLocaleString('zh-CN');
+                
+                saveData();
+                renderTasks();
+                renderStyleList();
+                showToast(`第${dayNum}天-${orderId.split('_')[1]}任务已领取`);
+            }
+        }
+        
+        // 领取评价任务
+        function claimReviewTask(dayNum, orderId) {
+            if (!currentStyleId) return;
+            
+            const workflow = getStyleWorkflow(currentStyleId);
+            const dayKey = `day${dayNum}`;
+            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === orderId);
+            
+            if (order) {
+                order.review.claimed = true;
+                order.review.claimedAt = new Date().toLocaleString('zh-CN');
+                
+                saveData();
+                renderTasks();
+                renderStyleList();
+                showToast(`评价任务已领取`);
+            }
         }
         
         // 检查任务是否可用
@@ -1757,6 +2460,19 @@
             if (task.dependsOn === 'sales_plan') {
                 const completed = getSalesPlanCompletedDays(workflow);
                 return completed >= 7;
+            }
+            
+            if (task.dependsOn === 'review') {
+                // 检查是否所有评价任务都完成
+                let allReviewsCompleted = true;
+                Object.values(workflow.sales_plan.days).forEach(day => {
+                    day.orders.forEach(order => {
+                        if (!order.review.completed) {
+                            allReviewsCompleted = false;
+                        }
+                    });
+                });
+                return allReviewsCompleted;
             }
             
             const depTask = workflow[task.dependsOn];
@@ -1786,6 +2502,54 @@
             showToast('任务已开始');
         }
         
+        // 打开关键词对话框
+        function openKeywordModal(dayNum, orderId) {
+            if (!currentStyleId) return;
+            
+            currentDayNum = dayNum;
+            currentOrderId = orderId;
+            
+            const orderNum = orderId.split('_')[1];
+            document.getElementById('keywordModalTitle').textContent = '老司机上传关键词';
+            document.getElementById('keywordTaskName').textContent = `第${dayNum}天-${orderNum}`;
+            document.getElementById('keywordTextInput').value = '';
+            
+            document.getElementById('keywordModal').classList.add('show');
+        }
+        
+        // 关闭关键词对话框
+        function closeKeywordModal() {
+            document.getElementById('keywordModal').classList.remove('show');
+            currentDayNum = null;
+            currentOrderId = null;
+        }
+        
+        // 保存关键词
+        function saveKeyword() {
+            if (!currentStyleId || !currentDayNum || !currentOrderId) return;
+            
+            const keywordText = document.getElementById('keywordTextInput').value.trim();
+            if (!keywordText) {
+                showToast('请输入关键词', 'error');
+                return;
+            }
+            
+            const workflow = getStyleWorkflow(currentStyleId);
+            const dayKey = `day${currentDayNum}`;
+            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === currentOrderId);
+            
+            if (order) {
+                order.keywords = keywordText;
+                order.keywordUploadedAt = new Date().toLocaleString('zh-CN');
+                
+                saveData();
+                renderTasks();
+                renderStyleList();
+                closeKeywordModal();
+                showToast('关键词已保存');
+            }
+        }
+        
         // 打开上传对话框
         function openUploadModal(taskId, type) {
             if (!currentStyleId) return;
@@ -1793,24 +2557,35 @@
             const workflow = getStyleWorkflow(currentStyleId);
             uploadType = type;
             
-            if (taskId.startsWith('day')) {
-                // 销量计划子任务
-                const dayKey = taskId;
-                const dayNum = parseInt(taskId.replace('day', ''));
-                currentDayTask = workflow.sales_plan.days[dayKey];
-                currentDayTask._dayNum = dayNum;
+            if (taskId.startsWith('order_')) {
+                // 销量订单完成截图
+                const parts = taskId.split('_');
+                const dayNum = parseInt(parts[1]);
+                const orderId = parts.slice(2).join('_');
+                const orderNum = orderId.split('_')[1];
                 
-                if (type === 'keyword') {
-                    document.getElementById('uploadModalTitle').textContent = '上传关键词截图';
-                    document.getElementById('uploadTaskName').textContent = `第${dayNum}天 - 老司机上传关键词`;
-                } else {
-                    document.getElementById('uploadModalTitle').textContent = '上传完成截图';
-                    document.getElementById('uploadTaskName').textContent = `第${dayNum}天 - 鑫垭完成任务`;
-                }
+                currentDayNum = dayNum;
+                currentOrderId = orderId;
+                
+                document.getElementById('uploadModalTitle').textContent = '上传完成截图';
+                document.getElementById('uploadTaskName').textContent = `第${dayNum}天-${orderNum} - 鑫垭完成任务`;
+            } else if (taskId.startsWith('review_')) {
+                // 评价任务截图
+                const parts = taskId.split('_');
+                const dayNum = parseInt(parts[1]);
+                const orderId = parts.slice(2).join('_');
+                const orderNum = orderId.split('_')[1];
+                
+                currentDayNum = dayNum;
+                currentOrderId = orderId;
+                
+                document.getElementById('uploadModalTitle').textContent = '上传评价完成截图';
+                document.getElementById('uploadTaskName').textContent = `第${dayNum}天-${orderNum} - 评价任务`;
             } else {
                 // 普通任务
                 currentTask = workflow[taskId];
-                currentDayTask = null;
+                currentDayNum = null;
+                currentOrderId = null;
                 document.getElementById('uploadModalTitle').textContent = '上传完成截图';
                 document.getElementById('uploadTaskName').textContent = currentTask.name;
             }
@@ -1827,7 +2602,8 @@
         function closeUploadModal() {
             document.getElementById('uploadModal').classList.remove('show');
             currentTask = null;
-            currentDayTask = null;
+            currentDayNum = null;
+            currentOrderId = null;
             selectedFile = null;
             uploadType = 'completion';
         }
@@ -1856,20 +2632,26 @@
             reader.onload = function(e) {
                 const imageData = e.target.result;
                 
-                if (currentDayTask) {
-                    // 销量计划子任务
-                    const dayNum = currentDayTask._dayNum;
+                if (currentDayNum !== null && currentOrderId) {
+                    // 销量订单或评价任务
+                    const workflow = getStyleWorkflow(currentStyleId);
+                    const dayKey = `day${currentDayNum}`;
+                    const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === currentOrderId);
                     
-                    if (uploadType === 'keyword') {
-                        currentDayTask.keywordScreenshot = imageData;
-                        currentDayTask.keywordUploaded = true;
-                        currentDayTask.keywordUploadedAt = new Date().toLocaleString('zh-CN');
-                        showToast(`第${dayNum}天关键词已上传`);
-                    } else {
-                        currentDayTask.screenshot = imageData;
-                        currentDayTask.completed = true;
-                        currentDayTask.completedAt = new Date().toLocaleString('zh-CN');
-                        showToast(`第${dayNum}天任务完成！`);
+                    if (order) {
+                        if (uploadType === 'completion') {
+                            // 销量订单完成
+                            order.screenshot = imageData;
+                            order.completed = true;
+                            order.completedAt = new Date().toLocaleString('zh-CN');
+                            showToast('销量任务完成！');
+                        } else if (uploadType === 'review') {
+                            // 评价任务完成
+                            order.review.screenshot = imageData;
+                            order.review.completed = true;
+                            order.review.completedAt = new Date().toLocaleString('zh-CN');
+                            showToast('评价任务完成！');
+                        }
                     }
                 } else if (currentTask) {
                     // 普通任务
