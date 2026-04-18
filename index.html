@@ -2399,13 +2399,26 @@
             
             const workflow = getStyleWorkflow(currentStyleId);
             const dayKey = `day${dayNum}`;
-            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === orderId);
+            const dayData = workflow.sales_plan.days[dayKey];
             
-            if (!order) return;
+            if (!dayData || !dayData.orders || dayData.orders.length === 0) {
+                showToast('数据异常', 'error');
+                return;
+            }
+            
+            const order = dayData.orders[0]; // 每天只有1个订单
+            
+            // 确保 keywords 是数组
+            if (!Array.isArray(order.keywords)) {
+                order.keywords = [];
+            }
             
             // 找到对应的关键词
             const keyword = order.keywords.find(kw => kw.id === keywordId);
-            if (!keyword) return;
+            if (!keyword) {
+                showToast('关键词不存在', 'error');
+                return;
+            }
             
             // 1. 复制关键词到剪贴板
             navigator.clipboard.writeText(keyword.text).then(() => {
@@ -2442,15 +2455,16 @@
             }
         }
         
-        // 领取订单任务
+        // 领取订单任务（已弃用，现在通过复制关键词自动领取）
         function claimOrderTask(dayNum, orderId) {
             if (!currentStyleId) return;
             
             const workflow = getStyleWorkflow(currentStyleId);
             const dayKey = `day${dayNum}`;
-            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === orderId);
+            const dayData = workflow.sales_plan.days[dayKey];
             
-            if (order) {
+            if (dayData && dayData.orders && dayData.orders.length > 0) {
+                const order = dayData.orders[0];
                 order.claimed = true;
                 order.claimedAt = new Date().toLocaleString('zh-CN');
                 
@@ -2467,9 +2481,10 @@
             
             const workflow = getStyleWorkflow(currentStyleId);
             const dayKey = `day${dayNum}`;
-            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === orderId);
+            const dayData = workflow.sales_plan.days[dayKey];
             
-            if (order) {
+            if (dayData && dayData.orders && dayData.orders.length > 0) {
+                const order = dayData.orders[0];
                 order.review.claimed = true;
                 order.review.claimedAt = new Date().toLocaleString('zh-CN');
                 
@@ -2552,7 +2567,10 @@
         
         // 保存关键词（支持多关键词，每行一个）
         function saveKeyword() {
-            if (!currentStyleId || !currentDayNum || !currentOrderId) return;
+            if (!currentStyleId || !currentDayNum || !currentOrderId) {
+                console.log('条件不满足', currentStyleId, currentDayNum, currentOrderId);
+                return;
+            }
             
             const keywordText = document.getElementById('keywordTextInput').value.trim();
             if (!keywordText) {
@@ -2562,12 +2580,25 @@
             
             const workflow = getStyleWorkflow(currentStyleId);
             const dayKey = `day${currentDayNum}`;
-            const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === currentOrderId);
+            const dayData = workflow.sales_plan.days[dayKey];
+            
+            if (!dayData || !dayData.orders || dayData.orders.length === 0) {
+                showToast('数据异常', 'error');
+                return;
+            }
+            
+            const order = dayData.orders[0]; // 每天只有1个订单
             
             if (order) {
+                // 确保 keywords 是数组
+                if (!Array.isArray(order.keywords)) {
+                    order.keywords = [];
+                }
+                
                 // 按行分割关键词，每行一个
                 const lines = keywordText.split('\n').map(line => line.trim()).filter(line => line);
                 
+                let addedCount = 0;
                 // 追加新关键词到列表
                 lines.forEach(text => {
                     // 检查是否已存在相同关键词
@@ -2578,6 +2609,7 @@
                             text: text,
                             addedAt: new Date().toLocaleString('zh-CN')
                         });
+                        addedCount++;
                     }
                 });
                 
@@ -2585,7 +2617,7 @@
                 renderTasks();
                 renderStyleList();
                 closeKeywordModal();
-                showToast(`已添加 ${lines.length} 个关键词`);
+                showToast(`已添加 ${addedCount} 个关键词`);
             }
         }
         
@@ -2673,9 +2705,11 @@
                     // 销量订单或评价任务
                     const workflow = getStyleWorkflow(currentStyleId);
                     const dayKey = `day${currentDayNum}`;
-                    const order = workflow.sales_plan.days[dayKey].orders.find(o => o.id === currentOrderId);
+                    const dayData = workflow.sales_plan.days[dayKey];
                     
-                    if (order) {
+                    if (dayData && dayData.orders && dayData.orders.length > 0) {
+                        const order = dayData.orders[0]; // 每天只有1个订单
+                        
                         if (uploadType === 'completion') {
                             // 销量订单完成
                             order.screenshot = imageData;
