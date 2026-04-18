@@ -800,6 +800,9 @@
         .review-status.pending { background: #f3f4f6; color: #6b7280; }
         .review-status.in-progress { background: #fef3c7; color: #d97706; }
         .review-status.completed { background: #d1fae5; color: #059669; }
+        .review-status.ready { background: #fee2e2; color: #dc2626; }
+        
+        .review-btn[disabled] { opacity: 0.6; cursor: not-allowed; background: #e5e7eb; color: #9ca3af; }
         
         .review-time-info {
             font-size: 10px;
@@ -1460,7 +1463,43 @@
                     order.status = 'pending';
                 }
             }
+            
+            // 计算评价任务状态
+            if (order.review) {
+                if (order.review.completed) {
+                    order.review.status = 'completed';
+                } else if (order.completedAt) {
+                    const daysUntil = getDaysUntilReview(order.completedAt);
+                    if (daysUntil <= 0) {
+                        order.review.status = 'ready';
+                    } else {
+                        order.review.status = 'pending';
+                    }
+                } else {
+                    order.review.status = 'pending';
+                }
+            }
+            
             return order;
+        }
+        
+        // 计算评价任务第3天日期
+        function getReviewReadyDate(completedAt) {
+            if (!completedAt) return null;
+            const completed = new Date(completedAt);
+            const readyDate = new Date(completed);
+            readyDate.setDate(readyDate.getDate() + 3);
+            return readyDate;
+        }
+        
+        // 计算距离第3天还剩多少天
+        function getDaysUntilReview(completedAt) {
+            if (!completedAt) return -1;
+            const readyDate = getReviewReadyDate(completedAt);
+            const now = new Date();
+            const diff = readyDate - now;
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+            return days;
         }
         
         // 初始化
@@ -1470,6 +1509,42 @@
                 initDefaultStyles();
             }
             renderStyleList();
+            
+            // 检查是否有到达第3天的评价任务需要提醒
+            checkReadyReviewTasks();
+        }
+        
+        // 检查是否有到达第3天的评价任务需要提醒
+        function checkReadyReviewTasks() {
+            let readyReviewCount = 0;
+            const readyReviews = [];
+            
+            styleList.forEach(style => {
+                const workflow = getStyleWorkflow(style.id);
+                if (workflow && workflow.sales_plan && workflow.sales_plan.days) {
+                    Object.values(workflow.sales_plan.days).forEach(day => {
+                        day.orders.forEach(order => {
+                            normalizeOrderStatus(order);
+                            if (order.completedAt && order.review && order.review.status === 'ready' && !order.review.completed) {
+                                readyReviewCount++;
+                                readyReviews.push({
+                                    styleCode: style.code,
+                                    dayNum: day.day,
+                                    readyDate: getReviewReadyDate(order.completedAt)
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+            
+            if (readyReviewCount > 0) {
+                const styleNames = readyReviews.slice(0, 3).map(r => `${r.styleCode}(第${r.dayNum}天)`).join('、');
+                const suffix = readyReviewCount > 3 ? `等${readyReviewCount}个任务` : '';
+                setTimeout(() => {
+                    showToast(`🔔 您有 ${readyReviewCount} 个评价任务已到第3天，请及时处理！`);
+                }, 500);
+            }
         }
         
         // 初始化默认款式
@@ -2332,18 +2407,34 @@
             // 兼容旧数据
             normalizeOrderStatus(order);
             
+            // 获取评价任务状态
+            const reviewStatus = review.status || 'pending';
+            const daysUntil = order.completedAt ? getDaysUntilReview(order.completedAt) : -1;
+            
             let reviewStatusText = '';
-            if (review.completed) {
+            let reviewStatusClass = 'pending';
+            
+            if (reviewStatus === 'completed') {
                 reviewStatusText = '已完成';
-            } else if (review.claimed) {
-                reviewStatusText = '进行中';
-            } else if (order.status === 'completed') {
-                reviewStatusText = '待领取';
-            } else {
+                reviewStatusClass = 'completed';
+            } else if (reviewStatus === 'ready') {
+                reviewStatusText = '可执行';
+                reviewStatusClass = 'in-progress';
+            } else if (order.status !== 'completed') {
                 reviewStatusText = '等待销量完成';
+                reviewStatusClass = 'pending';
+            } else {
+                reviewStatusText = '等待中';
+                reviewStatusClass = 'pending';
             }
             
             let timeInfoHtml = '';
+            if (order.completedAt) {
+                const readyDate = getReviewReadyDate(order.completedAt);
+                const readyDateStr = readyDate ? readyDate.toLocaleDateString('zh-CN') : '-';
+                timeInfoHtml += `<div class="review-time-info">销量完成: ${order.completedAt}</div>`;
+                timeInfoHtml += `<div class="review-time-info">第3天日期: ${readyDateStr}</div>`;
+            }
             if (review.claimedAt) {
                 timeInfoHtml += `<div class="review-time-info">领取: ${review.claimedAt}</div>`;
             }
@@ -2361,12 +2452,19 @@
             }
             
             let actionsHtml = '';
-            if (order.status === 'completed' && !review.completed) {
-                if (!review.claimed) {
-                    actionsHtml += `<button class="review-btn start" onclick="claimReviewTask(${dayNum}, '${orderId}')">开干</button>`;
-                } else if (review.claimed && !review.completed) {
-                    actionsHtml += `<button class="review-btn complete" onclick="openUploadModal('review_${dayNum}_${orderId}', 'review')">上传完成截图</button>`;
-                }
+            if (order.status !== 'completed') {
+                // 销量未完成 - 显示等待信息
+                actionsHtml += `<button class="review-btn" disabled>⏳ 等待销量完成</button>`;
+            } else if (reviewStatus === 'ready' && !review.completed) {
+                // 已到第3天且未完成 - 显示"开干"按钮
+                actionsHtml += `<button class="review-btn start" onclick="claimReviewTask(${dayNum}, '${orderId}')">🔔 第3天到了！立即开干</button>`;
+            } else if (reviewStatus === 'pending' && !review.completed) {
+                // 销量完成但未到第3天 - 显示倒计时
+                const daysText = daysUntil > 0 ? `还需 ${daysUntil} 天` : '即将可执行';
+                actionsHtml += `<button class="review-btn" disabled>⏰ 第3天可执行（${daysText}）</button>`;
+            } else if (review.claimed && !review.completed) {
+                // 已领取但未完成 - 显示"上传截图"按钮
+                actionsHtml += `<button class="review-btn complete" onclick="openUploadModal('review_${dayNum}_${orderId}', 'review')">上传完成截图</button>`;
             }
             if (review.completed) {
                 actionsHtml += `<button class="review-btn done" disabled>✓ 已完成</button>`;
@@ -2376,7 +2474,7 @@
                 <div class="review-card">
                     <div class="review-header">
                         <span class="review-title">📝 评价任务（负责人：鑫垭）</span>
-                        <span class="review-status ${review.completed ? 'completed' : review.claimed ? 'in-progress' : 'pending'}">${reviewStatusText}</span>
+                        <span class="review-status ${reviewStatusClass}">${reviewStatusText}</span>
                     </div>
                     ${timeInfoHtml}
                     ${screenshotHtml}
